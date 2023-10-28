@@ -3,77 +3,165 @@
 #include <string.h>
 
 //FUNÇÕES
-int logarUsuario(FILE *arq, char entrada[]);
-int cadastrarUsuario(FILE *arq, char entrada[]);
-int menuPrincipal(FILE *arq);
-int menuSecundario();
+char* solicitarDadosUsuario();
+int logarUsuario(FILE* arq, char valores[]);
+void cadastrarUsuario(FILE* arq, char valores[]);
+void gerenciarCliente();
+void gerenciarAnimais();
+void gerenciarAdocao();
+void visualizarAnimaisDisponiveis();
 
-#define LOGADO "LOGADO";
-#define NLOGADO "NLOGADO";
+#define TAMUSUARIO 5
+#define TAMSENHA 5
 
 //FUNÇÃO PRINCIPAL
 int main(){
 
     //VARIÁVEIS
     FILE *arqUsuario, *arqPessoa, *arqDoacao, *arqDepoimento;
-    char entrada[19], linha[19];
+    char usuario[5];
 
     struct Pessoa
     {
         char nome[50];
     };
     
-    // INÍCIO DO PROGRAMA
-    arqUsuario = fopen("arquivos/usuarios.txt", "a+"); // abre o arquivo
-    if (arqUsuario == NULL)
-    {
-        printf("Problemas na abertura do arquivo. Tente novamente!\n");
-        return 0;
-    }
+    
 
     printf("\nBem-vindo(a) ao Patrulha Canina!!!\n");
     
-    // FAZ O CADASTRO OU LOGIN NO SISTEMA
-    int retorno;
+    int opcao;
+    // REALIZA O LOGIN
     do
     {
-        retorno = menuPrincipal(arqUsuario);
-        printf("MENU: %d \n", retorno);
-        switch(retorno)
-        {
-            case 0:
-                printf("\nDados inválidos!\n");
-                retorno = menuPrincipal(arqUsuario);
-                break;
+        printf("\nMENU:\n");
+        printf("1 - CADASTRAR USUÁRIO\n");
+        printf("2 - LOGAR NO SISTEMA\n");
+        printf("3 - SAIR\n");
+        printf("O que deseja fazer? ");
+        scanf("%d", &opcao);
 
+        switch(opcao)
+        {
             case 1:
-                printf("\nUsuário logado!\n");
-                //chama o menu secundário
+                printf("Para cadastrar um novo usuário é necessário estar logado no sistema. Tente novamente!\n");
                 break;
 
             case 2:
-                printf("\nUsuário logado!\n");
-                //chama o menu secundário
+                {
+                    arqUsuario = fopen("arquivos/usuarios.txt", "r"); // abre o arquivo
+                    if (arqUsuario == NULL)
+                    {
+                        printf("Erro interno. Tente novamente!\n");
+                        opcao = 3;
+                        break;
+                    }
+                    
+                    char* dados = (char*) malloc(sizeof(char));
+                    dados = solicitarDadosUsuario();
+                    int retorno = logarUsuario(arqUsuario, dados);
+                    
+                    if(retorno == 0)
+                        printf("\nUsuário não cadastrado. Tente novamente!\n");
+                    else if(retorno == 1)
+                    {
+                        for (int i=0; i < strlen(dados); i++)
+                        {   
+                            if (dados[i] == ',')
+                                break;
+
+                            usuario[i] = dados[i];
+                        }
+
+                        printf("\nUsuário %s logado!\n", usuario);
+                        free(dados);   
+                    }
+
+                    fclose(arqUsuario);
+                    fflush(arqUsuario);
+                }
                 break;
-            
-            case 3: // usuário deseja sair
+
+            case 3:
                 break;
 
             default:
-                printf("\nOpção inválida\n");
-                retorno = 3;
+                printf("Opção inválida. Tente novamente!\n");
                 break;
+
         }
-    }while(retorno != 3);
+    }while(opcao != 3);
+
+    if(opcao = 3)
+        return 0;
+
+    // MENU SECUNDÁRIO
+    do
+    {
+        printf("\nMENU:\n");
+        printf("1 - GERENCIAR CLIENTE\n");
+        printf("2 - GERENCIAR ANIMAIS\n");
+        printf("3 - GERENCIAR ADOÇÃO\n");
+        printf("4 - VISUALIZAR ANIMAIS DISPONÍVEIS\n");
+        printf("5 - SAIR\n");
+        printf("O que deseja fazer? ");
+        scanf("%d", &opcao);
+
+        switch(opcao)
+        {
+            case 1:
+                break;
+
+            case 2:
+                break;
+
+            case 3:
+                break;
+
+            case 4:
+                break;
+
+            case 5:
+                break;
+
+            default:
+                printf("Opção inválida. Tente novamente!\n");
+                break;
+
+        }
+    }while(opcao != 5);
+
     
-  
-    fclose(arqUsuario);
-    fflush(arqUsuario);
     return 0;
 }
 
 //FUNCÕES SECUNDÁRIAS
-int logarUsuario(FILE *arq, char entrada[])
+
+char* solicitarDadosUsuario()
+{
+    int tamLinha = TAMUSUARIO + 1 + TAMSENHA + 1; // calcula o tamanho máximo da linha
+    char entrada[tamLinha];
+    char *linha = (char*) malloc(tamLinha * sizeof(char));
+
+    printf("\nDigite o seu usuário (%d caracteres): ", TAMUSUARIO);
+    scanf("%s", entrada);
+    while(strlen(entrada) > TAMUSUARIO)
+        printf("\nTamanho inválido. Digite o seu usuário (%d caracteres) novamente: ", TAMUSUARIO);
+
+    strcat(linha, entrada);
+    strcat(linha, ",");
+
+    printf("Digite a sua senha (%d caracteres): ", TAMSENHA);
+    scanf("%s", entrada);
+    while(strlen(entrada) > TAMSENHA)
+        printf("\nTamanho inválido. Digite a sua senha (%d caracteres) novamente: ", TAMUSUARIO);
+
+    strcat(linha, entrada);
+    return linha;
+}
+
+
+int logarUsuario(FILE* arq, char valores[])
 {
     rewind(arq); // posiciona o ponteiro no começo do arquivo
     char leitura[19];
@@ -90,54 +178,14 @@ int logarUsuario(FILE *arq, char entrada[])
                 leitura[i] = '\0';
         }
 
-        //printf("2: %s", leitura);
-        //printf("3: %s", entrada);
-
-        if(strcmp(leitura, entrada) == 0) // compara se as strings são iguais
-            return atoi(strncpy(leitura, entrada, 1)); //atoi converte String em Int
+        if(strcmp(leitura, valores) == 0) // compara se as strings são iguais
+            return 1;
     }
 
-    return 0;    
+    return 0; // indica que não existe esse perfil cadastrado 
 }
 
-int cadastrarUsuario(FILE *arq, char entrada[])
+void cadastrarUsuario(FILE* arq, char valores[])
 {
-    fprintf(arq, "%s\n", entrada);
-    return logarUsuario(arq, entrada);
-}
-
-int menuPrincipal(FILE *arq)
-{
-    int ret;
-    char entrada[19], linha[19];
-
-    printf("1 - CADASTRAR USUÁRIO\n");
-    printf("2 - LOGAR NO SISTEMA\n");
-    printf("3 - SAIR\n");
-    printf("O que deseja fazer? ");
-    scanf("%d", &ret);
-
-    if(ret >= 3 || ret <=0) // deseja sair ou opção inválida
-        return ret;
-    
-    printf("\nQual o seu nível de permissão:\n");
-    printf("1 - Funcionário\n");
-    printf("2 - Cliente\n");
-    scanf("%s", entrada);
-    strcat(linha, entrada);
-    strcat(linha, ",");
-
-    printf("\nDigite o seu usuário (4 caracteres): ");
-    scanf("%s", entrada);
-    strcat(linha, entrada);
-    strcat(linha, ",");
-
-    printf("Digite a sua senha (5 caracteres): ");
-    scanf("%s", entrada);
-    strcat(linha, entrada);
-
-    if(ret == 1)
-        return cadastrarUsuario(arq, linha);
-    else if (ret == 2)
-        return logarUsuario(arq, linha);
+    fprintf(arq, "%s\n", valores);
 }
