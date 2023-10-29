@@ -20,6 +20,7 @@ int main(){
     //VARIÁVEIS
     FILE *arqUsuario, *arqPessoa, *arqDoacao, *arqDepoimento;
     char usuario[5];
+    int ehLogado = 0;
 
     struct Pessoa
     {
@@ -74,7 +75,9 @@ int main(){
                         }
 
                         printf("\nUsuário %s logado!\n", usuario);
-                        free(dados);   
+                        free(dados);
+                        opcao = 3;  
+                        ehLogado = 1;
                     }
 
                     fclose(arqUsuario);
@@ -90,26 +93,37 @@ int main(){
                 break;
 
         }
-    }while(opcao != 3);
+    }while(opcao != 3 || ehLogado==0);
 
-    if(opcao = 3)
+    if(opcao == 3 && ehLogado == 0)
         return 0;
 
     // MENU SECUNDÁRIO
     do
     {
+        int opcaoSub;
         printf("\nMENU:\n");
         printf("1 - GERENCIAR CLIENTE\n");
         printf("2 - GERENCIAR ANIMAIS\n");
         printf("3 - GERENCIAR ADOÇÃO\n");
-        printf("4 - VISUALIZAR ANIMAIS DISPONÍVEIS\n");
-        printf("5 - SAIR\n");
+        printf("4 - CRIAR USUÁRIO FUNCIONÁRIO\n");
+        printf("5 - VISUALIZAR ANIMAIS PARA ADOÇÃO\n");
+        printf("6 - SAIR\n");
         printf("O que deseja fazer? ");
         scanf("%d", &opcao);
 
         switch(opcao)
         {
             case 1:
+                {
+                    printf("1 - INCLUIR CLIENTE\n");
+                    printf("2 - ALTERAR CLIENTE\n");
+                    printf("3 - EXCLUIR CLIENTE\n");
+                    scanf("%d", &opcaoSub);
+
+                    if(opcaoSub == 1)
+                        
+                }
                 break;
 
             case 2:
@@ -122,6 +136,9 @@ int main(){
                 break;
 
             case 5:
+                break;
+
+            case 6:
                 break;
 
             default:
