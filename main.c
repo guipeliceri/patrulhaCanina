@@ -5,9 +5,9 @@
 //FUNÇÕES
 char* solicitarDadosUsuario();
 int logarUsuario(FILE* arq, char valores[]);
-void cadastrarUsuario(FILE* arq, char valores[]);
-void gerenciarCliente();
-void gerenciarAnimais();
+int cadastrarUsuario(FILE* arq, char valores[]);
+void incluirCliente();
+void incluirAnimais();
 void gerenciarAdocao();
 void visualizarAnimaisDisponiveis();
 
@@ -59,9 +59,9 @@ int main(){
                     }
                     
                     char* dados = (char*) malloc(sizeof(char));
-                    dados = solicitarDadosUsuario();
+                    dados = solicitarDadosUsuario(dados);
                     int retorno = logarUsuario(arqUsuario, dados);
-                    
+
                     if(retorno == 0)
                         printf("\nUsuário não cadastrado. Tente novamente!\n");
                     else if(retorno == 1)
@@ -93,7 +93,7 @@ int main(){
                 break;
 
         }
-    }while(opcao != 3 || ehLogado==0);
+    }while(opcao != 3);
 
     if(opcao == 3 && ehLogado == 0)
         return 0;
@@ -121,8 +121,8 @@ int main(){
                     printf("3 - EXCLUIR CLIENTE\n");
                     scanf("%d", &opcaoSub);
 
-                    if(opcaoSub == 1)
-                        
+                    //if(opcaoSub == 1)
+                    //    incluirCliente();
                 }
                 break;
 
@@ -133,6 +133,27 @@ int main(){
                 break;
 
             case 4:
+                {
+                    arqUsuario = fopen("arquivos/usuarios.txt", "a+"); //abre o arquivo para edição
+                    if (arqUsuario == NULL)
+                    {
+                        printf("Erro interno. Tente novamente!\n");
+                        opcao = 6;
+                        break;
+                    }
+                    
+                    //chama o método do cadastrarUsuario passando o arquivo para edição e solicita os dados para o usuário
+                    int retorno = cadastrarUsuario(arqUsuario, solicitarDadosUsuario()); 
+                    
+                    //valida se a inclusão aconteceu com sucesso ou não
+                    if(retorno == 0)
+                        printf("\nUsuário não cadastrado. Tente novamente!\n");
+                    else if(retorno == 1)
+                        printf("\nUsuário cadastrado!\n\n Retornando ao menu anterior.\n");
+
+                    fclose(arqUsuario);
+                    fflush(arqUsuario);
+                }
                 break;
 
             case 5:
@@ -146,7 +167,7 @@ int main(){
                 break;
 
         }
-    }while(opcao != 5);
+    }while(opcao != 6);
 
     
     return 0;
@@ -163,7 +184,10 @@ char* solicitarDadosUsuario()
     printf("\nDigite o seu usuário (%d caracteres): ", TAMUSUARIO);
     scanf("%s", entrada);
     while(strlen(entrada) > TAMUSUARIO)
-        printf("\nTamanho inválido. Digite o seu usuário (%d caracteres) novamente: ", TAMUSUARIO);
+    {
+        printf("Tamanho inválido. Digite o seu usuário (%d caracteres) novamente: ", TAMUSUARIO);
+        scanf("%s", entrada);
+    }
 
     strcat(linha, entrada);
     strcat(linha, ",");
@@ -171,7 +195,10 @@ char* solicitarDadosUsuario()
     printf("Digite a sua senha (%d caracteres): ", TAMSENHA);
     scanf("%s", entrada);
     while(strlen(entrada) > TAMSENHA)
-        printf("\nTamanho inválido. Digite a sua senha (%d caracteres) novamente: ", TAMUSUARIO);
+    {
+        printf("Tamanho inválido. Digite a sua senha (%d caracteres) novamente: ", TAMUSUARIO);
+        scanf("%s", entrada);
+    }
 
     strcat(linha, entrada);
     return linha;
@@ -189,7 +216,7 @@ int logarUsuario(FILE* arq, char valores[])
         fgets(leitura, 19, arq);
         
         //remove o '\n' do final da string que acabou de ler
-        for (int i=0; i<strlen(leitura); i++)
+        for (int i=0; i<=strlen(leitura)-1; i++)
         {
             if(leitura[i] == '\n')
                 leitura[i] = '\0';
@@ -202,7 +229,8 @@ int logarUsuario(FILE* arq, char valores[])
     return 0; // indica que não existe esse perfil cadastrado 
 }
 
-void cadastrarUsuario(FILE* arq, char valores[])
+int cadastrarUsuario(FILE* arq, char valores[])
 {
     fprintf(arq, "%s\n", valores);
+    return logarUsuario(arq, valores);
 }
