@@ -3,7 +3,7 @@
 #include <string.h>
 
 //FUNÇÕES
-char* solicitarDadosUsuario();
+void solicitarDadosUsuario(char* linha);
 int logarUsuario(FILE* arq, char valores[]);
 int cadastrarUsuario(FILE* arq, char valores[]);
 void incluirCliente();
@@ -13,6 +13,7 @@ void visualizarAnimaisDisponiveis();
 
 #define TAMUSUARIO 5
 #define TAMSENHA 5
+#define TAMLINHAUSUARIO TAMUSUARIO + 1 + TAMSENHA
 
 //FUNÇÃO PRINCIPAL
 int main(){
@@ -58,10 +59,10 @@ int main(){
                         break;
                     }
                     
-                    char* dados = (char*) malloc(sizeof(char));
-                    dados = solicitarDadosUsuario(dados);
+                    char dados[TAMLINHAUSUARIO];
+                    dados[0] = '\0'; //limpa o vetor
+                    solicitarDadosUsuario(dados);
                     int retorno = logarUsuario(arqUsuario, dados);
-
                     if(retorno == 0)
                         printf("\nUsuário não cadastrado. Tente novamente!\n");
                     else if(retorno == 1)
@@ -75,7 +76,6 @@ int main(){
                         }
 
                         printf("\nUsuário %s logado!\n", usuario);
-                        free(dados);
                         opcao = 3;  
                         ehLogado = 1;
                     }
@@ -142,14 +142,17 @@ int main(){
                         break;
                     }
                     
+                    char dados2[TAMLINHAUSUARIO];
+                    dados2[0] = '\0'; //limpa o vetor
+                    solicitarDadosUsuario(dados2);
                     //chama o método do cadastrarUsuario passando o arquivo para edição e solicita os dados para o usuário
-                    int retorno = cadastrarUsuario(arqUsuario, solicitarDadosUsuario()); 
+                    int retorno = cadastrarUsuario(arqUsuario, dados2); 
                     
                     //valida se a inclusão aconteceu com sucesso ou não
                     if(retorno == 0)
                         printf("\nUsuário não cadastrado. Tente novamente!\n");
                     else if(retorno == 1)
-                        printf("\nUsuário cadastrado!\n\n Retornando ao menu anterior.\n");
+                        printf("\nUsuário cadastrado!\n\nRetornando ao menu anterior.\n");
 
                     fclose(arqUsuario);
                     fflush(arqUsuario);
@@ -175,11 +178,10 @@ int main(){
 
 //FUNCÕES SECUNDÁRIAS
 
-char* solicitarDadosUsuario()
+void solicitarDadosUsuario(char* linha)
 {
     int tamLinha = TAMUSUARIO + 1 + TAMSENHA + 1; // calcula o tamanho máximo da linha
     char entrada[tamLinha];
-    char *linha = (char*) malloc(tamLinha * sizeof(char));
 
     printf("\nDigite o seu usuário (%d caracteres): ", TAMUSUARIO);
     scanf("%s", entrada);
@@ -201,7 +203,8 @@ char* solicitarDadosUsuario()
     }
 
     strcat(linha, entrada);
-    return linha;
+    printf("LINHA: %s", linha);
+    //return linha;
 }
 
 
@@ -213,15 +216,18 @@ int logarUsuario(FILE* arq, char valores[])
     while (!feof(arq)) // indica o fim do arquivo
     {
         //lê uma linha (inclusive com o '\n')
-        fgets(leitura, 19, arq);
         
+        fgets(leitura, 19, arq);
+        //printf("LEITURA: %s", leitura);
+
         //remove o '\n' do final da string que acabou de ler
-        for (int i=0; i<=strlen(leitura)-1; i++)
+        for (int i=0; i<=(strlen(leitura)-1); i++)
         {
             if(leitura[i] == '\n')
                 leitura[i] = '\0';
         }
 
+        //printf("VALORES: %s", valores);
         if(strcmp(leitura, valores) == 0) // compara se as strings são iguais
             return 1;
     }
@@ -231,6 +237,7 @@ int logarUsuario(FILE* arq, char valores[])
 
 int cadastrarUsuario(FILE* arq, char valores[])
 {
-    fprintf(arq, "%s\n", valores);
+    rewind(arq);
+    fprintf(arq, "\n%s", valores);
     return logarUsuario(arq, valores);
 }
