@@ -17,6 +17,7 @@ void gerenciarAdocao();
 void visualizarAnimaisDisponiveis();
 void limparBufferEntrada();
 void atualizarStatusAdocao(int id, char novoStatus);
+char verificarStatusAdocao(int id);
 
 #define TAMUSUARIO 5
 #define TAMSENHA 5
@@ -370,9 +371,18 @@ void excluirAnimal() {
     scanf("%d", &idExcluir);
     limparBufferEntrada();
 
+    char status = verificarStatusAdocao(idExcluir);
+    if (status == 'A') {
+        printf("Animal já adotado. Não é possível excluir.\n");
+        return;
+    } else if (status == 'E') {
+        printf("Erro ao verificar o status do animal.\n");
+        return;
+    }
+
     FILE *arqAnimais = fopen("arquivos/animais.txt", "r");
     if (arqAnimais == NULL) {
-        printf("\nErro ao abrir o arquivo!\n");
+        printf("\nErro ao abrir o arquivo de animais.\n");
         return;
     }
 
@@ -383,7 +393,7 @@ void excluirAnimal() {
         return;
     }
 
-    char linha[100];
+    char linha[200];
     int id;
     while (fgets(linha, sizeof(linha), arqAnimais) != NULL) {
         sscanf(linha, "%d,", &id);
@@ -402,6 +412,7 @@ void excluirAnimal() {
     printf("Animal excluído com sucesso.\n");
 }
 
+
 int gerarProximoID() {
     FILE *arqID = fopen("arquivos/id_animal.txt", "r+");
     if (arqID == NULL) {
@@ -416,39 +427,57 @@ int gerarProximoID() {
         return -1;
     }
 
+    idAtual++; // Incrementa o ID
+
+    // Garantir que o ID tem 4 dígitos
+    if (idAtual < 1000) {
+        idAtual = 1000;
+    } else if (idAtual > 9999) {
+        // Lidar com o caso em que o ID excede 4 dígitos
+        printf("Limite máximo de ID atingido.\n");
+        fclose(arqID);
+        return -1;
+    }
+
     rewind(arqID); 
-    fprintf(arqID, "%d", idAtual + 1); // Incrementa e salva o novo ID
+    fprintf(arqID, "%04d", idAtual); // Grava o novo ID com formato de 4 dígitos
     fclose(arqID);
 
-    return idAtual + 1; // Retorna o novo ID
+    return idAtual;
 }
 
 
+
 void atualizarStatusAdocao(int id, char novoStatus) {
+    // Abre o arquivo original para leitura
     FILE *arqAnimais = fopen("arquivos/animais.txt", "r");
     if (arqAnimais == NULL) {
         printf("\nErro ao abrir o arquivo de animais.\n");
         return;
     }
 
+    // Abre um arquivo temporário para escrita
     FILE *arqTemp = fopen("arquivos/temp.txt", "w");
     if (arqTemp == NULL) {
         printf("\nErro ao abrir o arquivo temporário!\n");
-        fclose(arqAnimais);
+        fclose(arqAnimais); // Garante que o arquivo original seja fechado
         return;
     }
 
-    char linha[100];
+    char linha[200];
     int idLido;
+    bool alterado = false;
+
     while (fgets(linha, sizeof(linha), arqAnimais) != NULL) {
         sscanf(linha, "%d,", &idLido);
         if (idLido == id) {
             // Encontrou o animal, atualiza o status
             char *posVirgula = strrchr(linha, ','); // Encontra a última vírgula
-            if (posVirgula != NULL) {
+            if (posVirgula != NULL && (novoStatus == 'A' || novoStatus == 'D')) {
                 posVirgula[1] = novoStatus; // Substitui o status
                 posVirgula[2] = '\n'; // Certifica que a linha termina com uma quebra de linha
                 posVirgula[3] = '\0'; // Termina a string
+                alterado = true;
             }
         }
         fputs(linha, arqTemp);
@@ -457,12 +486,18 @@ void atualizarStatusAdocao(int id, char novoStatus) {
     fclose(arqAnimais);
     fclose(arqTemp);
 
-    // Substitui o arquivo original pelo temporário
-    remove("arquivos/animais.txt");
-    rename("arquivos/temp.txt", "arquivos/animais.txt");
-
-    printf("Status do animal atualizado com sucesso.\n");
+    // Verifica se houve alteração antes de substituir o arquivo
+    if (alterado) {
+        // Substitui o arquivo original pelo temporário
+        remove("arquivos/animais.txt");
+        rename("arquivos/temp.txt", "arquivos/animais.txt");
+        printf("Status do animal atualizado com sucesso.\n");
+    } else {
+        remove("arquivos/temp.txt"); // Remove o arquivo temporário não utilizado
+        printf("Animal com ID %d não encontrado.\n", id);
+    }
 }
+
 
 int existeAnimalComID(int id) {
     FILE *arqAnimais = fopen("arquivos/animais.txt", "r");
@@ -484,4 +519,27 @@ int existeAnimalComID(int id) {
 
     fclose(arqAnimais);
     return 0; // Retorna 0 se não encontrar um animal com o mesmo ID
+}
+
+char verificarStatusAdocao(int id) {
+    FILE *arqAnimais = fopen("arquivos/animais.txt", "r");
+    if (arqAnimais == NULL) {
+        printf("\nErro ao abrir o arquivo de animais.\n");
+        return 'E'; // Retorna 'E' para indicar erro
+    }
+
+    char linha[200];
+    int idLido;
+    char status;
+    
+    while (fgets(linha, sizeof(linha), arqAnimais) != NULL) {
+        sscanf(linha, "%d,%*[^,],%*[^,],%*d,%*c,%c", &idLido, &status);
+        if (idLido == id) {
+            fclose(arqAnimais);
+            return status; // Retorna o status do animal ('A' para adotado, 'D' para disponível)
+        }
+    }
+
+    fclose(arqAnimais);
+    return 'N'; // Retorna 'N' se não encontrar um animal com o mesmo ID
 }
