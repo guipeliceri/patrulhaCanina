@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 //FUNÇÕES
 void solicitarDadosUsuario(char* linha);
@@ -280,10 +281,10 @@ void gerenciarAnimais() {
                 incluirAnimal();
                 break;
             case 2:
-                // Lógica para alterar um animal (se necessário)
+                //alterarAnimal();
                 break;
             case 3:
-                // Lógica para excluir um animal
+                excluirAnimal();
                 break;
             case 4:
                 {
@@ -350,7 +351,7 @@ void incluirAnimal() {
         fprintf(arqAnimais, "%d,%s,%s,%d,%c,%c,%s\n", 
                 novoAnimal.ID, novoAnimal.nome, novoAnimal.especie, 
                 novoAnimal.idade, novoAnimal.sexo, novoAnimal.status, novoAnimal.observacoes);
-
+        fflush(arqAnimais);
         fclose(arqAnimais);
         printf("Cadastro de animal realizado com sucesso!\n");
     } else {
