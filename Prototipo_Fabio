@@ -17,7 +17,7 @@ void excluirAnimal();
 void gerenciarAdocao();
 void visualizarAnimaisDisponiveis();
 void limparBufferEntrada();
-void atualizarStatusAdocao(int id, char novoStatus);
+void atualizarStatusAdocao(int id, const char* novoStatus);
 char verificarStatusAdocao(int id);
 
 #define TAMUSUARIO 5
@@ -265,6 +265,7 @@ int cadastrarUsuario(FILE* arq, char valores[])
 
 void gerenciarAnimais() {
     int opcaoAnimal;
+    int id;
     do {
         printf("\nGERENCIAR ANIMAIS:\n");
         printf("1 - INCLUIR ANIMAL\n");
@@ -287,16 +288,18 @@ void gerenciarAnimais() {
                 excluirAnimal();
                 break;
             case 4:
-                {
-                    int id;
-                    char status;
-                    printf("Digite o ID do animal: ");
-                    scanf("%d", &id);
-                    limparBufferEntrada();
-                    printf("Digite o novo status (A para Adotado, D para Disponível): ");
-                    scanf(" %c", &status);
-                    limparBufferEntrada();
+                printf("Digite o ID do animal: ");
+                scanf("%d", &id);
+                limparBufferEntrada();
+                char status[20];
+                printf("Digite o novo status (Adotado ou Disponivel): ");
+                scanf("%19s", status); // Lê a string de status como "Adotado" ou "Disponivel"
+                limparBufferEntrada();
+
+                if (strcmp(status, "Adotado") == 0 || strcmp(status, "Disponivel") == 0) {
                     atualizarStatusAdocao(id, status);
+                } else {
+                    printf("Status inválido. Por favor, digite 'Adotado' ou 'Disponivel'.\n");
                 }
                 break;
             case 5:
@@ -348,9 +351,9 @@ void incluirAnimal() {
     // Abre o arquivo para adicionar o novo animal
     FILE *arqAnimais = fopen("arquivos/animais.txt", "a");
     if (arqAnimais != NULL) {
-        fprintf(arqAnimais, "%d,%s,%s,%d,%c,%c,%s\n", 
+        fprintf(arqAnimais, "%d,%s,%s,%d,%c,%s\n", 
                 novoAnimal.ID, novoAnimal.nome, novoAnimal.especie, 
-                novoAnimal.idade, novoAnimal.sexo, novoAnimal.status, novoAnimal.observacoes);
+                novoAnimal.idade, novoAnimal.sexo, novoAnimal.observacoes);
         fflush(arqAnimais);
         fclose(arqAnimais);
         printf("Cadastro de animal realizado com sucesso!\n");
@@ -358,12 +361,13 @@ void incluirAnimal() {
         printf("Erro ao abrir o arquivo de animais.\n");
     }
 }
-     
-
 
 void limparBufferEntrada() {
+    // Lê e descarta caracteres até encontrar uma nova linha ou EOF
     int c;
-    while ((c = getchar()) != '\n' && c != EOF) { }
+    do {
+        c = getchar();
+    } while (c != '\n' && c != EOF);
 }
 
 void excluirAnimal() {
@@ -447,21 +451,17 @@ int gerarProximoID() {
     return idAtual;
 }
 
-
-
-void atualizarStatusAdocao(int id, char novoStatus) {
-    // Abre o arquivo original para leitura
+void atualizarStatusAdocao(int id, const char* novoStatus) {
     FILE *arqAnimais = fopen("arquivos/animais.txt", "r");
     if (arqAnimais == NULL) {
         printf("\nErro ao abrir o arquivo de animais.\n");
         return;
     }
 
-    // Abre um arquivo temporário para escrita
     FILE *arqTemp = fopen("arquivos/temp.txt", "w");
     if (arqTemp == NULL) {
         printf("\nErro ao abrir o arquivo temporário!\n");
-        fclose(arqAnimais); // Garante que o arquivo original seja fechado
+        fclose(arqAnimais);
         return;
     }
 
@@ -472,34 +472,31 @@ void atualizarStatusAdocao(int id, char novoStatus) {
     while (fgets(linha, sizeof(linha), arqAnimais) != NULL) {
         sscanf(linha, "%d,", &idLido);
         if (idLido == id) {
-            // Encontrou o animal, atualiza o status
-            char *posVirgula = strrchr(linha, ','); // Encontra a última vírgula
-            if (posVirgula != NULL && (novoStatus == 'A' || novoStatus == 'D')) {
-                posVirgula[1] = novoStatus; // Substitui o status
-                posVirgula[2] = '\n'; // Certifica que a linha termina com uma quebra de linha
-                posVirgula[3] = '\0'; // Termina a string
+            // Encontrou o animal, substitua o status atual pelo novo status
+            char* ptr = strrchr(linha, ','); // Encontra a última vírgula
+            if (ptr) {
+                *(ptr + 1) = '\0'; // Encerra a string na vírgula
+                strcat(linha, novoStatus); // Concatena o novo status
                 alterado = true;
             }
         }
-        fputs(linha, arqTemp);
+        fprintf(arqTemp, "%s\n", linha); // Escreve a linha no arquivo temporário
     }
 
     fclose(arqAnimais);
     fclose(arqTemp);
 
-    // Verifica se houve alteração antes de substituir o arquivo
     if (alterado) {
-        // Substitui o arquivo original pelo temporário
         remove("arquivos/animais.txt");
         rename("arquivos/temp.txt", "arquivos/animais.txt");
         printf("Status do animal atualizado com sucesso.\n");
     } else {
-        remove("arquivos/temp.txt"); // Remove o arquivo temporário não utilizado
-        printf("Animal com ID %d não encontrado.\n", id);
+        remove("arquivos/temp.txt");
+        printf("Animal com ID %d não encontrado ou status já está atualizado.\n", id);
     }
 }
 
-
+  
 int existeAnimalComID(int id) {
     FILE *arqAnimais = fopen("arquivos/animais.txt", "r");
     if (arqAnimais == NULL) {
