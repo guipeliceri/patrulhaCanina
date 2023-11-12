@@ -19,6 +19,7 @@ void visualizarAnimaisDisponiveis();
 void limparBufferEntrada();
 void atualizarStatusAdocao(int id, const char* novoStatus);
 char verificarStatusAdocao(int id);
+void atualizaStatusAnimal();
 
 #define TAMUSUARIO 5
 #define TAMSENHA 5
@@ -269,10 +270,8 @@ void gerenciarAnimais() {
     do {
         printf("\nGERENCIAR ANIMAIS:\n");
         printf("1 - INCLUIR ANIMAL\n");
-        printf("2 - ALTERAR ANIMAL\n");
-        printf("3 - EXCLUIR ANIMAL\n");
-        printf("4 - ATUALIZAR STATUS DE ADOÇÃO\n");
-        printf("5 - VOLTAR AO MENU PRINCIPAL\n");
+        printf("2 - EXCLUIR ANIMAL\n");;
+        printf("3 - VOLTAR AO MENU PRINCIPAL\n");
         printf("Escolha uma opção: ");
         scanf("%d", &opcaoAnimal);
         limparBufferEntrada();
@@ -282,27 +281,9 @@ void gerenciarAnimais() {
                 incluirAnimal();
                 break;
             case 2:
-                //alterarAnimal();
-                break;
-            case 3:
                 excluirAnimal();
                 break;
-            case 4:
-                printf("Digite o ID do animal: ");
-                scanf("%d", &id);
-                limparBufferEntrada();
-                char status[20];
-                printf("Digite o novo status (Adotado ou Disponivel): ");
-                scanf("%19s", status); // Lê a string de status como "Adotado" ou "Disponivel"
-                limparBufferEntrada();
-
-                if (strcmp(status, "Adotado") == 0 || strcmp(status, "Disponivel") == 0) {
-                    atualizarStatusAdocao(id, status);
-                } else {
-                    printf("Status inválido. Por favor, digite 'Adotado' ou 'Disponivel'.\n");
-                }
-                break;
-            case 5:
+            case 3:
                 return; // Retorna ao menu principal
             default:
                 printf("Opção inválida. Tente novamente!\n");
@@ -351,7 +332,7 @@ void incluirAnimal() {
     // Abre o arquivo para adicionar o novo animal
     FILE *arqAnimais = fopen("arquivos/animais.txt", "a");
     if (arqAnimais != NULL) {
-        fprintf(arqAnimais, "%d,%s,%s,%d,%c,%s\n", 
+        fprintf(arqAnimais, "%d;%s;%s;%d;%c; %s\n", 
                 novoAnimal.ID, novoAnimal.nome, novoAnimal.especie, 
                 novoAnimal.idade, novoAnimal.sexo, novoAnimal.observacoes);
         fflush(arqAnimais);
@@ -376,12 +357,9 @@ void excluirAnimal() {
     scanf("%d", &idExcluir);
     limparBufferEntrada();
 
-    char status = verificarStatusAdocao(idExcluir);
-    if (status == 'A') {
-        printf("Animal já adotado. Não é possível excluir.\n");
-        return;
-    } else if (status == 'E') {
-        printf("Erro ao verificar o status do animal.\n");
+    // Verifica se o ID existe
+    if (!existeAnimalComID(idExcluir)) {
+        printf("ID não existe.\n");
         return;
     }
 
@@ -399,23 +377,30 @@ void excluirAnimal() {
     }
 
     char linha[200];
-    int id;
+    int id, encontrado = 0;
     while (fgets(linha, sizeof(linha), arqAnimais) != NULL) {
         sscanf(linha, "%d,", &id);
         if (id != idExcluir) {
             fputs(linha, arqTemp);
+        } else {
+            encontrado = 1; // Marca como encontrado
         }
     }
 
     fclose(arqAnimais);
     fclose(arqTemp);
 
-    // Substitui o arquivo original pelo temporário
-    remove("arquivos/animais.txt");
-    rename("arquivos/temp.txt", "arquivos/animais.txt");
-
-    printf("Animal excluído com sucesso.\n");
+    if (!encontrado) {
+        printf("ID não encontrado nos registros.\n");
+        remove("arquivos/temp.txt"); // Remove o arquivo temporário, pois não houve mudança
+    } else {
+        // Substitui o arquivo original pelo temporário
+        remove("arquivos/animais.txt");
+        rename("arquivos/temp.txt", "arquivos/animais.txt");
+        printf("Animal excluído com sucesso.\n");
+    }
 }
+
 
 
 int gerarProximoID() {
@@ -541,3 +526,4 @@ char verificarStatusAdocao(int id) {
     fclose(arqAnimais);
     return 'N'; // Retorna 'N' se não encontrar um animal com o mesmo ID
 }
+
