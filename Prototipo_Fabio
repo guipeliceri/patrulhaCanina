@@ -336,7 +336,7 @@ void incluirAnimal() {
     // Abre o arquivo para adicionar o novo animal
     FILE *arqAnimais = fopen("arquivos/animais.txt", "a");
     if (arqAnimais != NULL) {
-        fprintf(arqAnimais, "%d;%s;%s;%s;%c;%s\n", 
+        fprintf(arqAnimais, "%d ; %s; %s; %s; %c; %s\n", 
                 novoAnimal.ID, novoAnimal.nome, novoAnimal.especie, 
                 novoAnimal.idade, novoAnimal.sexo, novoAnimal.observacoes);
         fflush(arqAnimais); // Limpa o buffer de saída do arquivo
