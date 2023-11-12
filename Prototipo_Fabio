@@ -30,7 +30,7 @@ struct Animal {
     int ID; //ID único para cada animal
     char nome[50];
     char especie[30];
-    int idade;
+    char idade[20];
     char sexo; // Usar "M" ou "F" 
     char status; // Usar 'A' para adotado e 'D' para disponível
     char observacoes[100]; //Observações adicionais
@@ -305,43 +305,48 @@ void incluirAnimal() {
     novoAnimal.status = 'D'; // Define o status inicial como disponível
 
     printf("Nome do animal: ");
-    scanf("%49s", novoAnimal.nome); 
-    limparBufferEntrada(); // Limpa o buffer
+    scanf("%49s", novoAnimal.nome);
+    limparBufferEntrada(); // Limpa o buffer após a entrada do nome
 
     printf("Espécie: ");
-    scanf("%29s", novoAnimal.especie); 
-    limparBufferEntrada(); 
+    scanf("%29s", novoAnimal.especie);
+    limparBufferEntrada(); // Limpa o buffer após a entrada da espécie
 
+    // Alteração aqui: A idade agora é uma string
     printf("Idade: ");
-    scanf("%d", &novoAnimal.idade);
-    limparBufferEntrada(); 
+    fgets(novoAnimal.idade, sizeof(novoAnimal.idade), stdin);
+    // Remove a nova linha no final da string, se houver
+    size_t len = strlen(novoAnimal.idade);
+    if (len > 0 && novoAnimal.idade[len - 1] == '\n') {
+        novoAnimal.idade[len - 1] = '\0';
+    }
 
     printf("Sexo (M/F): ");
     scanf(" %c", &novoAnimal.sexo);
-    limparBufferEntrada(); 
+    limparBufferEntrada(); // Limpa o buffer após a entrada do sexo
 
     printf("Observações (cuidados especiais, comportamento, etc.): ");
     fgets(novoAnimal.observacoes, sizeof(novoAnimal.observacoes), stdin);
-
-     // Remove a possível quebra de linha no final da string
-    size_t len = strlen(novoAnimal.observacoes);
+    // Remove a nova linha no final da string, se houver
+    len = strlen(novoAnimal.observacoes);
     if (len > 0 && novoAnimal.observacoes[len - 1] == '\n') {
-    novoAnimal.observacoes[len - 1] = '\0';
+        novoAnimal.observacoes[len - 1] = '\0';
     }
 
     // Abre o arquivo para adicionar o novo animal
     FILE *arqAnimais = fopen("arquivos/animais.txt", "a");
     if (arqAnimais != NULL) {
-        fprintf(arqAnimais, "%d;%s;%s;%d;%c; %s\n", 
+        fprintf(arqAnimais, "%d;%s;%s;%s;%c;%s\n", 
                 novoAnimal.ID, novoAnimal.nome, novoAnimal.especie, 
                 novoAnimal.idade, novoAnimal.sexo, novoAnimal.observacoes);
-        fflush(arqAnimais);
-        fclose(arqAnimais);
+        fflush(arqAnimais); // Limpa o buffer de saída do arquivo
+        fclose(arqAnimais); // Fecha o arquivo
         printf("Cadastro de animal realizado com sucesso!\n");
     } else {
         printf("Erro ao abrir o arquivo de animais.\n");
     }
 }
+
 
 void limparBufferEntrada() {
     // Lê e descarta caracteres até encontrar uma nova linha ou EOF
