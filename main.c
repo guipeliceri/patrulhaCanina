@@ -281,7 +281,19 @@ void gerenciarAnimais() {
                 incluirAnimal();
                 break;
             case 2:
-                excluirAnimal();
+            {
+                int idExcluir;
+                printf("Digite o ID do animal a ser excluído: ");
+                scanf("%d", &idExcluir);
+                limparBufferEntrada();
+                int retorno =  excluirAnimal(idExcluir);
+                if (!retorno) {
+                    printf("ID não encontrado nos registros.\n");
+                } else {
+                    printf("Animal excluído com sucesso.\n");
+                }
+
+            }
                 break;
             case 3:
                 return; // Retorna ao menu principal
@@ -356,12 +368,8 @@ void limparBufferEntrada() {
     } while (c != '\n' && c != EOF);
 }
 
-void excluirAnimal() {
-    int idExcluir;
-    printf("Digite o ID do animal a ser excluído: ");
-    scanf("%d", &idExcluir);
-    limparBufferEntrada();
-
+int excluirAnimal(int idExcluir) {
+    
     // Verifica se o ID existe
     if (!existeAnimalComID(idExcluir)) {
         printf("ID não existe.\n");
@@ -396,14 +404,14 @@ void excluirAnimal() {
     fclose(arqTemp);
 
     if (!encontrado) {
-        printf("ID não encontrado nos registros.\n");
         remove("arquivos/temp.txt"); // Remove o arquivo temporário, pois não houve mudança
     } else {
         // Substitui o arquivo original pelo temporário
         remove("arquivos/animais.txt");
         rename("arquivos/temp.txt", "arquivos/animais.txt");
-        printf("Animal excluído com sucesso.\n");
     }
+
+    return encontrado;
 }
 
 
