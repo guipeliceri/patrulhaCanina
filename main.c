@@ -13,7 +13,7 @@ void incluirCliente();
 void incluirAnimal();
 void gerenciarAnimais();
 void alterarAnimal();
-void excluirAnimal();
+int excluirAnimal();
 void gerenciarAdocao();
 void visualizarAnimaisDisponiveis();
 void limparBufferEntrada();
