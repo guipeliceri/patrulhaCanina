@@ -176,6 +176,7 @@ int main(){
                 break;
 
             case 5:
+                visualizarAnimaisDisponiveis();
                 break;
 
             case 6:
@@ -593,3 +594,25 @@ char verificarStatusAdocao(int id) {
     fclose(arqAnimais);
     return 'N'; // Retorna 'N' se não encontrar um animal com o mesmo ID
 }
+
+void visualizarAnimaisDisponiveis() {
+        FILE *arqAnimaisDisponiveis = fopen("arquivos/animais.txt", "r");
+        char frase[100];
+
+        if(arqAnimaisDisponiveis != NULL) {
+            
+            printf("\nAqui está a lista de animais disponíveis para adoção:\n");
+
+            while(fgets(frase, sizeof(frase), arqAnimaisDisponiveis) != NULL) {
+                printf("-%s", frase+5);
+            }
+            printf("\n");
+            fclose(arqAnimaisDisponiveis);
+        }
+
+        else{
+            printf("Não foi possível visualizar os animais disponíveis.\n");
+        }
+
+}
+
