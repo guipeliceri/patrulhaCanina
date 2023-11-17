@@ -13,8 +13,42 @@ void incluirCliente();
 void incluirAnimal();
 void gerenciarAnimais();
 void alterarAnimal();
-int excluirAnimal();
-void gerenciarAdocao();
+int excluirAnimal(int idExcluir);
+void gerenciarAdocao(){
+    /* int opcao;
+    do
+    {
+        printf("(1) - INCLUIR ADOÇÃO\n");
+        printf("(2) - ALTERAR ADOÇÃO\n");
+        printf("(3) - EXCLUIR ADOÇÃO\n");
+        printf("(4) - CONSULTAR ADOÇÃO\n");
+        printf("(5) - VOLTAR AO MENU PRINCIPAL\n");
+
+        scanf("%d", &opcao);
+
+        switch(opcao)
+        {
+            case 1:
+                incluirAdocao();
+                break;
+            case 2:
+                alterarAdocao();
+                break;
+            case 3:
+                excluirAdocao();
+                break;
+            case 4:
+                consultarAdocao();
+                break;
+            case 5:
+                break;
+            default:
+                printf("Opção inválida!\n");
+                break;
+        }
+    } while(opcao != 5); */
+    printf("deu certo!");
+};
 void visualizarAnimaisDisponiveis();
 void limparBufferEntrada();
 void atualizarStatusAdocao(int id, const char* novoStatus);
@@ -152,6 +186,7 @@ int main(){
                 break;
 
             case 3:
+                gerenciarAdocao();
                 break;
 
             case 4:
@@ -301,7 +336,7 @@ void gerenciarAnimais() {
                 printf("Opção inválida. Tente novamente!\n");
                 break;
         }
-    } while(opcaoAnimal != 5);
+    } while(opcaoAnimal != 3);
 }
 
 void incluirAnimal() {
@@ -373,20 +408,20 @@ int excluirAnimal(int idExcluir) {
     // Verifica se o ID existe
     if (!existeAnimalComID(idExcluir)) {
         printf("ID não existe.\n");
-        return;
+        return 1;
     }
 
     FILE *arqAnimais = fopen("arquivos/animais.txt", "r");
     if (arqAnimais == NULL) {
         printf("\nErro ao abrir o arquivo de animais.\n");
-        return;
+        return 1;
     }
 
     FILE *arqTemp = fopen("arquivos/temp.txt", "w");
     if (arqTemp == NULL) {
         printf("\nErro ao abrir o arquivo temporário!\n");
         fclose(arqAnimais);
-        return;
+        return 1;
     }
 
     char linha[200];
