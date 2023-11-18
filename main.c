@@ -25,6 +25,7 @@ void limparBufferEntrada();
 void atualizarStatusAdocao(int id, const char* novoStatus);
 char verificarStatusAdocao(int id);
 void atualizaStatusAnimal();
+void consultarAdocao();
 
 #define TAMUSUARIO 5
 #define TAMSENHA 5
@@ -394,7 +395,7 @@ void incluirAnimal() {
     // Abre o arquivo para adicionar o novo animal
     FILE *arqAnimais = fopen("arquivos/animais.txt", "a");
     if (arqAnimais != NULL) {
-        fprintf(arqAnimais, "%d ; %s; %s; %s; %c; %s\n", 
+        fprintf(arqAnimais, "%d;%s; %s; %s; %c; %s\n", 
                 novoAnimal.ID, novoAnimal.nome, novoAnimal.especie, 
                 novoAnimal.idade, novoAnimal.sexo, novoAnimal.observacoes);
         fflush(arqAnimais); // Limpa o buffer de saída do arquivo
@@ -507,7 +508,7 @@ void gerenciarAdocao(){
                 //excluirAdocao();
                 break;
             case 4:
-                //consultarAdocao();
+                consultarAdocao();
                 break;
             case 5:
                 return;
@@ -862,4 +863,75 @@ int gerarProximoClienteID() {
     return ultimoID;
 }
 
+void consultarAdocao() {
 
+    int opcaoDeID;
+
+    printf("\nPara consultar uma adoção, escolhe entre as duas opções abaixo:\n");
+    printf("1 - PESQUISA POR ID DO ANIMAL\n");
+    printf("2 - PESQUISA POR ID DO CLIENTE\n");
+    scanf("%d", &opcaoDeID);        //A pesquisa será por id do animal ou do cliente?
+
+    switch (opcaoDeID)              //Case para a escolha
+    {
+        case 1: {
+
+        int idAnimal;
+        char frase[50];
+        int linha = 1;
+        char idAnimalStr[5];
+        char* TrueFalse;
+
+        printf("Digite o ID do animal a consultar\n");
+        scanf("%d", &idAnimal);       //ID do animal
+
+        sprintf(idAnimalStr, "%d", idAnimal);       //Transforma o ID (int) em String para usar no strstr()
+
+        FILE *arqIdAnimal;
+
+        arqIdAnimal = fopen("arquivos/adocao.txt", "r");     //Abre arquivo de adoção
+
+        if(arqIdAnimal != NULL) {
+
+            while(fgets(frase, sizeof(frase), arqIdAnimal) != NULL) {
+                int comprimento = strlen(frase)/2;
+               TrueFalse = strstr(frase+comprimento, idAnimalStr);          //Procura o ID do animal apenas na metade pra frente de cada frase do arquivo
+                                                                            //Pra que assim não de confusão com o ID do cliente
+               if(TrueFalse != NULL) {  //Se achou, para
+
+               for(int i=0; i<22; i++) {      
+                printf("%c", frase[i]);
+               }
+                printf("\n");
+                break;
+               }
+
+                 else                   //Se não continua a aumentar as linhas
+                  linha++;
+                    
+            }
+
+            if(TrueFalse == NULL) {
+                printf("Não foi possível achar o ID do animal digitado na aba de 'Adotado', ou o animal não existe, ou ele ainda não foi adotado\n");     //Se não achou mesmo o arquivo tendo acabado, acaba
+                break;
+            }
+
+            fclose(arqIdAnimal);
+         }
+
+         else {
+            printf("Não foi possível consultar o ID do animal\n");
+            printf("\n");
+            break;
+         }
+         break;
+        }
+
+        case 2: {
+            printf("OPÇÃO EM DESENVOLVIMENTO\n");
+            printf("\n");
+            break;
+        }
+
+    }
+}

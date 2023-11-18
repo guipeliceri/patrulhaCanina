@@ -1,2 +1,5 @@
-1030;Fabio;Humano;18 aninhos:D;M;Melhor de TADS
-1031;Scooby;Basset;6 anos;M;Melhor basset do universo
+1030;Fabio; Humano; 18 aninhos:D; M; Melhor de TADS
+1031;Scooby; Basset; 6 anos; M; Melhor basset do universo
+1034;Carlos; bobao;27 anos; F; esquisito
+1035;Maicon; Pastor; 5 anos; M; Fofao demais
+1036;Papagaio; cocozão; +500 anos; M; Maluco das ideia
