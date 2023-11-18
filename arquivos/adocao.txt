@@ -1,1 +1,5 @@
 ID da adotante é:1234 || ID do Animal é: 1031
+ID da adotante é:1234 || ID do Animal é: 123
+ID da adotante é:123 || ID do Animal é: 123
+ID da adotante é:240114 || ID do Animal é: 123
+ID da adotante é:240114 || ID do Animal é: 123

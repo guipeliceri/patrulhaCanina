@@ -416,6 +416,7 @@ int excluirAnimal(int idExcluir) {
 int incluirAdocao(){
     int idPessoa;
     int idAnimal;
+    int idAnimalExistente, idPessoaExistente;;
 
     FILE *arqAdocao;
     arqAdocao = fopen("arquivos/adocao.txt", "a+");
@@ -428,8 +429,22 @@ int incluirAdocao(){
     printf("INFORME O ID DO ANIMAL ADOTADO: ");
     scanf("%d", &idAnimal);
 
+    // Reposiciona o ponteiro para o início do arquivo
+    rewind(arqAdocao);
+
+    while(fscanf(arqAdocao, "ID da adotante é:%d || ID do Animal é: %d\n", &idPessoaExistente, &idAnimalExistente) == 2){
+        if(idAnimalExistente == idAnimal){
+            printf("\n[ERROR] Esse animal ja foi adotado!\n\n");
+            fclose(arqAdocao);
+            return 1;
+        }
+    }
+
+    // Reposiciona o ponteiro para o final do arquivo para escrita
+    fseek(arqAdocao, 0, SEEK_END);
+
     fprintf(arqAdocao, "ID da adotante é:%d || ID do Animal é: %d\n", idPessoa, idAnimal);
-    fflush(arqAdocao);
+    fflush(arqAdocao);// Limpa o buffer de saída do arquivo
     fclose(arqAdocao);
 
     printf("\nADOÇÃO REGISTRADA COM SUCESSO!\n\n");
