@@ -833,9 +833,8 @@ void consultarCliente() {
 
 int gerarProximoClienteID() {
     int ultimoID = 0;
-    FILE *arquivoID = fopen("ultimo_cliente_id.txt", "r+"); // Abre o arquivo para leitura/escrita.
+    FILE *arquivoID = fopen("ultimo_cliente_id.txt", "r+"); 
 
-    // Se o arquivo não puder ser aberto (não existe), crie um novo arquivo.
     if (arquivoID == NULL) {
         arquivoID = fopen("ultimo_cliente_id.txt", "w");
         if (arquivoID == NULL) {
