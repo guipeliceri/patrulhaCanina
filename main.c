@@ -652,7 +652,7 @@ void visualizarAnimaisDisponiveis() {
             printf("\nAqui está a lista de animais disponíveis para adoção:\n");
 
             while(fgets(frase, sizeof(frase), arqAnimaisDisponiveis) != NULL) {
-                printf("-%s", frase+5);
+                printf("-%s", frase);
             }
             printf("\n");
             fclose(arqAnimaisDisponiveis);
@@ -868,8 +868,8 @@ void consultarAdocao() {
     int opcaoDeID;
 
     printf("\nPara consultar uma adoção, escolhe entre as duas opções abaixo:\n");
-    printf("1 - PESQUISA POR ID DO ANIMAL\n");
-    printf("2 - PESQUISA POR ID DO CLIENTE\n");
+    printf("(1) - PESQUISA POR ID DO ANIMAL\n");
+    printf("(2) - PESQUISA POR ID DO CLIENTE\n");
     scanf("%d", &opcaoDeID);        //A pesquisa será por id do animal ou do cliente?
 
     switch (opcaoDeID)              //Case para a escolha
@@ -883,6 +883,7 @@ void consultarAdocao() {
         char* TrueFalse;
 
         printf("Digite o ID do animal a consultar\n");
+        printf("\n");
         scanf("%d", &idAnimal);       //ID do animal
 
         sprintf(idAnimalStr, "%d", idAnimal);       //Transforma o ID (int) em String para usar no strstr()
@@ -928,7 +929,37 @@ void consultarAdocao() {
         }
 
         case 2: {
-            printf("OPÇÃO EM DESENVOLVIMENTO\n");
+
+            char idClienteStr[5];
+            char frase2[50];
+            int idCliente;
+            int linha2 = 0;
+            printf("Digite o ID do cliente a consultar");
+            printf("\n");
+            scanf("%d", &idCliente);
+            printf("\nAqui estão os IDs dos animais que esse cliente adotou:\n");
+
+             sprintf(idClienteStr, "%d", idCliente);
+
+             FILE *arqIdCliente;
+
+             arqIdCliente = fopen("arquivos/adocao.txt", "r");
+
+             if(arqIdCliente != NULL) {
+                
+                while(fgets(frase2, sizeof(frase2), arqIdCliente)) {
+
+                    if(strstr(frase2, idClienteStr) != NULL) {
+                        printf("%s", frase2+25);
+                    }
+                     linha2 += 1;
+                }
+
+                fclose(arqIdCliente);
+             }
+             else
+                printf("Não foi possível abrir o arquivo\n");
+
             printf("\n");
             break;
         }
