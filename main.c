@@ -831,9 +831,7 @@ void consultarCliente() {
     fclose(arqClientes);
 }
 
-
 int gerarProximoClienteID() {
-    int ultimoID = 0;
     FILE *arquivoID = fopen("ultimo_cliente_id.txt", "r+"); 
 
     if (arquivoID == NULL) {
@@ -842,26 +840,32 @@ int gerarProximoClienteID() {
             fprintf(stderr, "Erro ao criar o arquivo de ID do cliente.\n");
             return -1;
         }
-        ultimoID = 1000; // Primeiro ID começa de 1000.
+        fprintf(arquivoID, "%02d", 1); // Escreve 01 como primeiro ID
+        fclose(arquivoID);
+        return 1;
     } else {
-        // Lê o último ID usado do arquivo.
+        int ultimoID;
         if (fscanf(arquivoID, "%d", &ultimoID) != 1) {
             fprintf(stderr, "Erro ao ler o último ID do cliente.\n");
             fclose(arquivoID);
             return -1;
         }
-        ultimoID++; // Incrementa o ID para o próximo cliente.
+        ultimoID++; 
+
+        // Se o ID exceder 99, reinicia para 01
+        if (ultimoID > 99) {
+            ultimoID = 1;
+        }
+
+        rewind(arquivoID);
+
+        fprintf(arquivoID, "%02d", ultimoID);
+        fclose(arquivoID); 
+
+        return ultimoID;
     }
-
-    // Move o ponteiro para o início do arquivo para atualizar o último ID.
-    rewind(arquivoID);
-
-    // Escreve o novo último ID no arquivo com preenchimento para garantir 4 dígitos.
-    fprintf(arquivoID, "%04d", ultimoID);
-    fclose(arquivoID); // Fecha o arquivo.
-
-    return ultimoID;
 }
+
 
 void consultarAdocao() {
 
