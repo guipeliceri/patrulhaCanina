@@ -372,7 +372,7 @@ void incluirAnimal() {
     limparBufferEntrada(); 
 
 
-    printf("Idade: ");
+    printf("Idade(em meses): ");
     fgets(novoAnimal.idade, sizeof(novoAnimal.idade), stdin);
     // Remove a nova linha no final da string, se houver
     size_t len = strlen(novoAnimal.idade);
@@ -384,7 +384,7 @@ void incluirAnimal() {
     scanf(" %c", &novoAnimal.sexo);
     limparBufferEntrada();
 
-    printf("Observações (cuidados especiais, comportamento, etc.): ");
+    printf("Observações sobre o animal): ");
     fgets(novoAnimal.observacoes, sizeof(novoAnimal.observacoes), stdin);
     len = strlen(novoAnimal.observacoes);
     if (len > 0 && novoAnimal.observacoes[len - 1] == '\n') {
@@ -704,7 +704,7 @@ void incluirCliente() {
     printf("\nDigite o nome completo do novo cliente: ");
     scanf(" %[^\n]", novoCliente.nome);
 
-    printf("Digite a idade do novo cliente: ");
+    printf("Digite a idade do novo cliente(em anos): ");
     scanf("%d", &novoCliente.idade);
 
     printf("Digite o endereço do novo cliente: ");
@@ -751,33 +751,26 @@ void alterarCliente() {
     char linha[200];
     int idLido;
     int encontrado = 0;
+    struct Cliente clienteAtual;
     while (fgets(linha, sizeof(linha), arqClientes)) {
-        sscanf(linha, "%d;", &idLido);
-        if (idLido == clienteID) {
+        sscanf(linha, "%d;%49[^;];%d;%99[^;];%49[^;];%14[^;];%14[^\n]", &clienteAtual.ID, clienteAtual.nome, &clienteAtual.idade,
+                  clienteAtual.endereco, clienteAtual.profissao, clienteAtual.cpf, clienteAtual.rg);
+        if (clienteAtual.ID == clienteID) {
             encontrado = 1;
 
-            // Novos dados do cliente
-            char novoNome[50];
-            int novaIdade;
-            char novoEndereco[100];
-            char novaProfissao[50];
-
+            // Solicitar novos dados, exceto CPF e RG
             printf("Digite o novo nome do cliente: ");
-            scanf(" %[^\n]", novoNome);
-
+            scanf(" %[^\n]", clienteAtual.nome);
             printf("Digite a nova idade do cliente: ");
-            scanf("%d", &novaIdade);
-
+            scanf("%d", &clienteAtual.idade);
             printf("Digite o novo endereço do cliente: ");
-            scanf(" %[^\n]", novoEndereco);
-
+            scanf(" %[^\n]", clienteAtual.endereco);
             printf("Digite a nova profissão do cliente: ");
-            scanf(" %[^\n]", novaProfissao);
+            scanf(" %[^\n]", clienteAtual.profissao);
 
-            //
-
-            // Escreve os novos dados no arquivo temporário
-            fprintf(arqTemp, "%d;%s;%d;%s;%s\n", clienteID, novoNome, novaIdade, novoEndereco, novaProfissao);
+            // Escreve os novos dados no arquivo temporário, mantendo o mesmo CPF e RG
+            fprintf(arqTemp, "%d;%s;%d;%s;%s;%s;%s\n", clienteAtual.ID, clienteAtual.nome, clienteAtual.idade,
+                    clienteAtual.endereco, clienteAtual.profissao, clienteAtual.cpf, clienteAtual.rg);
         } else {
             fputs(linha, arqTemp);
         }
@@ -795,6 +788,7 @@ void alterarCliente() {
         printf("\nCliente alterado com sucesso!\n");
     }
 }
+
 
 void excluirCliente() {
     int clienteID;
