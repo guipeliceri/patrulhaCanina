@@ -354,12 +354,12 @@ void gerenciarAnimais() {
 
 void incluirAnimal() {
     struct Animal novoAnimal;
-    novoAnimal.ID = gerarProximoID(); // Gera um novo ID para o animal
+    novoAnimal.ID = gerarProximoIDAnimal(); // Gera um novo ID para o animal
     
     // Verifica se o ID já existe
     while (existeAnimalComID(novoAnimal.ID)) {
         printf("Um animal com o ID %d já existe. Gerando um novo ID...\n", novoAnimal.ID);
-        novoAnimal.ID = gerarProximoID(); // Gera um novo ID
+        novoAnimal.ID = gerarProximoIDAnimal(); // Gera um novo ID
     }
     
 
@@ -372,7 +372,7 @@ void incluirAnimal() {
     limparBufferEntrada(); 
 
 
-    printf("Idade(em meses): ");
+    printf("Idade: ");
     fgets(novoAnimal.idade, sizeof(novoAnimal.idade), stdin);
     // Remove a nova linha no final da string, se houver
     size_t len = strlen(novoAnimal.idade);
@@ -384,7 +384,7 @@ void incluirAnimal() {
     scanf(" %c", &novoAnimal.sexo);
     limparBufferEntrada();
 
-    printf("Observações sobre o animal): ");
+    printf("Observações (cuidados especiais, comportamento, etc.): ");
     fgets(novoAnimal.observacoes, sizeof(novoAnimal.observacoes), stdin);
     len = strlen(novoAnimal.observacoes);
     if (len > 0 && novoAnimal.observacoes[len - 1] == '\n') {
@@ -704,7 +704,7 @@ void incluirCliente() {
     printf("\nDigite o nome completo do novo cliente: ");
     scanf(" %[^\n]", novoCliente.nome);
 
-    printf("Digite a idade do novo cliente(em anos): ");
+    printf("Digite a idade do novo cliente: ");
     scanf("%d", &novoCliente.idade);
 
     printf("Digite o endereço do novo cliente: ");
