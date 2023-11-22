@@ -8,7 +8,8 @@ void solicitarDadosUsuario(char* linha);
 int logarUsuario(FILE* arq, char valores[]);
 int cadastrarUsuario(FILE* arq, char valores[]);
 void gerenciarCliente();
-int gerarProximoID();//Para o Animal
+int gerarProximoIDAnimal();//Para o Animal
+int gerarProximoIDAdocao();
 int gerarProximoClienteID();
 int existeAnimalComID(int id);
 void incluirCliente();
@@ -352,7 +353,7 @@ void gerenciarAnimais() {
 
 void incluirAnimal() {
     struct Animal novoAnimal;
-    novoAnimal.ID = gerarProximoID();
+    novoAnimal.ID = gerarProximoIDAnimal();
 
     novoAnimal.nome = (char *)malloc(50 * sizeof(char));
     novoAnimal.especie = (char *)malloc(30 * sizeof(char));
@@ -455,9 +456,44 @@ int excluirAnimal(int idExcluir) {
     return encontrado;
 }
 
+
+int gerarProximoIDAdocao() {
+    FILE *arqID = fopen("arquivos/id_adocao.txt", "r+");
+    if (arqID == NULL) {
+        printf("Erro ao abrir o arquivo de ID.\n");
+        return -1; // Retorna um valor de erro
+    }
+
+    int idAtual;
+    if (fscanf(arqID, "%d", &idAtual) != 1) {
+        fclose(arqID);
+        printf("Erro ao ler o ID atual.\n");
+        return -1;
+    }
+
+    idAtual++; // Incrementa o ID
+
+    // Garantir que o ID tem 4 dígitos
+    if (idAtual < 1000) {
+        idAtual = 1000;
+    } else if (idAtual > 9999) {
+        // Lidar com o caso em que o ID excede 4 dígitos
+        printf("Limite máximo de ID atingido.\n");
+        fclose(arqID);
+        return -1;
+    }
+
+    rewind(arqID); 
+    fprintf(arqID, "%04d", idAtual); // Grava o novo ID com formato de 4 dígitos
+    fclose(arqID);
+
+    return idAtual;
+}
+
 int incluirAdocao(){
     int idPessoa;
     int idAnimal;
+    int idAdocao;
 
     FILE *arqAdocao;
     arqAdocao = fopen("arquivos/adocao.txt", "a+");
@@ -469,8 +505,9 @@ int incluirAdocao(){
     scanf("%d", &idPessoa);
     printf("INFORME O ID DO ANIMAL ADOTADO: ");
     scanf("%d", &idAnimal);
+    idAdocao = gerarProximoIDAdocao();
 
-    fprintf(arqAdocao, "ID da adotante é:%d || ID do Animal é: %d\n", idPessoa, idAnimal);
+    fprintf(arqAdocao, "ID da adoção é: %d ||ID da adotante é:%d || ID do Animal é: %d\n", idAdocao, idPessoa, idAnimal);
     fflush(arqAdocao);
     fclose(arqAdocao);
 
@@ -513,7 +550,7 @@ void gerenciarAdocao(){
     } while(opcao != 5);
 };
 
-int gerarProximoID() {
+int gerarProximoIDAnimal() {
     FILE *arqID = fopen("arquivos/id_animal.txt", "r+");
     if (arqID == NULL) {
         printf("Erro ao abrir o arquivo de ID.\n");
