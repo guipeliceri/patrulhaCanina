@@ -35,22 +35,22 @@ void consultarAdocao();
 //Estrutura para o Animal
 struct Animal {
     int ID; //ID único para cada animal
-    char *nome;
-    char *especie;
-    char *idade;
+    char nome[50];
+    char especie[30];
+    char idade[20];
     char sexo; // Usar "M" ou "F" 
-    char *observacoes;
+    char observacoes[100];
 };
 
 // Dados clientes
 struct Cliente {
     int ID;
-    char *nome;
+    char nome[50];
     int idade;
-    char *endereco;
-    char *profissao;
-    char *cpf;
-    char *rg;
+    char endereco[100];
+    char profissao[50];
+    char cpf[15];
+    char rg[15];
 };
 
 
@@ -354,21 +354,14 @@ void gerenciarAnimais() {
 
 void incluirAnimal() {
     struct Animal novoAnimal;
-    novoAnimal.ID = gerarProximoIDAnimal();
-
-    novoAnimal.nome = (char *)malloc(50 * sizeof(char));
-    novoAnimal.especie = (char *)malloc(30 * sizeof(char));
-    novoAnimal.idade = (char *)malloc(20 * sizeof(char));
-    novoAnimal.observacoes = (char *)malloc(100 * sizeof(char));
-
-    if (!novoAnimal.nome || !novoAnimal.especie || !novoAnimal.idade || !novoAnimal.observacoes) {
-        free(novoAnimal.nome);
-        free(novoAnimal.especie);
-        free(novoAnimal.idade);
-        free(novoAnimal.observacoes);
-        printf("Falha na alocação de memória.\n");
-        return;
+    novoAnimal.ID = gerarProximoID(); // Gera um novo ID para o animal
+    
+    // Verifica se o ID já existe
+    while (existeAnimalComID(novoAnimal.ID)) {
+        printf("Um animal com o ID %d já existe. Gerando um novo ID...\n", novoAnimal.ID);
+        novoAnimal.ID = gerarProximoID(); // Gera um novo ID
     }
+    
 
     printf("Nome do animal: ");
     scanf("%49s", novoAnimal.nome);
@@ -376,31 +369,39 @@ void incluirAnimal() {
 
     printf("Espécie: ");
     scanf("%29s", novoAnimal.especie);
+    limparBufferEntrada(); 
+
+
+    printf("Idade: ");
+    fgets(novoAnimal.idade, sizeof(novoAnimal.idade), stdin);
+    // Remove a nova linha no final da string, se houver
+    size_t len = strlen(novoAnimal.idade);
+    if (len > 0 && novoAnimal.idade[len - 1] == '\n') {
+        novoAnimal.idade[len - 1] = '\0';
+    }
+
+    printf("Sexo (M/F): ");
+    scanf(" %c", &novoAnimal.sexo);
     limparBufferEntrada();
 
-    printf("Idade(em meses): ");
-    scanf("%19s", novoAnimal.idade);
-    limparBufferEntrada();
-
-    printf("Observações: ");
-    scanf(" %[^\n]", novoAnimal.observacoes);
-    limparBufferEntrada();
+    printf("Observações (cuidados especiais, comportamento, etc.): ");
+    fgets(novoAnimal.observacoes, sizeof(novoAnimal.observacoes), stdin);
+    len = strlen(novoAnimal.observacoes);
+    if (len > 0 && novoAnimal.observacoes[len - 1] == '\n') {
+        novoAnimal.observacoes[len - 1] = '\0';
+    }
 
     FILE *arqAnimais = fopen("arquivos/animais.txt", "a");
     if (arqAnimais != NULL) {
-        fprintf(arqAnimais, "%d;%s;%s;%s;%s\n", 
+        fprintf(arqAnimais, "%d;%s; %s; %s; %c; %s\n", 
                 novoAnimal.ID, novoAnimal.nome, novoAnimal.especie, 
-                novoAnimal.idade, novoAnimal.observacoes);
-        fflush(arqAnimais);
-        fclose(arqAnimais);
+                novoAnimal.idade, novoAnimal.sexo, novoAnimal.observacoes);
+        fflush(arqAnimais); 
+        fclose(arqAnimais); 
+        printf("Cadastro de animal realizado com sucesso!\n");
     } else {
-        printf("Erro ao abrir arquivo de animais.\n");
+        printf("Erro ao abrir o arquivo de animais.\n");
     }
-
-    free(novoAnimal.nome);
-    free(novoAnimal.especie);
-    free(novoAnimal.idade);
-    free(novoAnimal.observacoes);
 }
 
 
@@ -700,58 +701,35 @@ void incluirCliente() {
     struct Cliente novoCliente;
     novoCliente.ID = gerarProximoClienteID();
 
-    novoCliente.nome = (char *)malloc(50 * sizeof(char));
-    novoCliente.endereco = (char *)malloc(100 * sizeof(char));
-    novoCliente.profissao = (char *)malloc(50 * sizeof(char));
-    novoCliente.cpf = (char *)malloc(15 * sizeof(char));
-    novoCliente.rg = (char *)malloc(15 * sizeof(char));
-
-    if (!novoCliente.nome || !novoCliente.endereco || !novoCliente.profissao || !novoCliente.cpf || !novoCliente.rg) {
-        free(novoCliente.nome);
-        free(novoCliente.endereco);
-        free(novoCliente.profissao);
-        free(novoCliente.cpf);
-        free(novoCliente.rg);
-        printf("Falha na alocação de memória.\n");
-        return;
-    }
-
     printf("\nDigite o nome completo do novo cliente: ");
     scanf(" %[^\n]", novoCliente.nome);
-    limparBufferEntrada();
+
+    printf("Digite a idade do novo cliente: ");
+    scanf("%d", &novoCliente.idade);
 
     printf("Digite o endereço do novo cliente: ");
     scanf(" %[^\n]", novoCliente.endereco);
-    limparBufferEntrada();
 
     printf("Digite a profissão do novo cliente: ");
     scanf(" %[^\n]", novoCliente.profissao);
-    limparBufferEntrada();
 
     printf("Digite o CPF do novo cliente: ");
     scanf("%s", novoCliente.cpf);
-    limparBufferEntrada();
 
     printf("Digite o RG do novo cliente: ");
     scanf("%s", novoCliente.rg);
-    limparBufferEntrada();
 
     FILE *arqClientes = fopen("arquivos/clientes.txt", "a");
-    if (arqClientes != NULL) {
-        fprintf(arqClientes, "%d;%s;%s;%s;%s;%s\n", 
-                novoCliente.ID, novoCliente.nome, novoCliente.endereco,
-                novoCliente.profissao, novoCliente.cpf, novoCliente.rg);
-        fflush(arqClientes);
-        fclose(arqClientes);
-    } else {
-        printf("Erro ao abrir arquivo de clientes.\n");
+    if (arqClientes == NULL) {
+        printf("Erro ao abrir o arquivo de clientes.\n");
+        return;
     }
 
-    free(novoCliente.nome);
-    free(novoCliente.endereco);
-    free(novoCliente.profissao);
-    free(novoCliente.cpf);
-    free(novoCliente.rg);
+   fprintf(arqClientes, "%d;%s;%d;%s;%s;%s;%s\n", novoCliente.ID, novoCliente.nome, novoCliente.idade,
+        novoCliente.endereco, novoCliente.profissao, novoCliente.cpf, novoCliente.rg);
+
+
+    fclose(arqClientes);
 
     printf("\nCliente %s incluído com sucesso!\n", novoCliente.nome);
 }
@@ -770,45 +748,58 @@ void alterarCliente() {
     printf("\nDigite o ID do cliente a ser alterado: ");
     scanf("%d", &clienteID);
 
-    struct Cliente clienteAtual;
+    char linha[200];
+    int idLido;
+    int encontrado = 0;
+    while (fgets(linha, sizeof(linha), arqClientes)) {
+        sscanf(linha, "%d;", &idLido);
+        if (idLido == clienteID) {
+            encontrado = 1;
 
-while (fscanf(arqClientes, "%d;%49[^;];%d;%99[^;];%49[^;];%14[^;];%14[^\n]\n", &clienteAtual.ID, clienteAtual.nome, &clienteAtual.idade,
-    clienteAtual.endereco, clienteAtual.profissao, clienteAtual.cpf, clienteAtual.rg) != EOF) {
-    if (clienteAtual.ID == clienteID) {
-            printf("\nDigite o novo nome do cliente: ");
-            scanf(" %[^\n]", clienteAtual.nome);
+            // Novos dados do cliente
+            char novoNome[50];
+            int novaIdade;
+            char novoEndereco[100];
+            char novaProfissao[50];
+
+            printf("Digite o novo nome do cliente: ");
+            scanf(" %[^\n]", novoNome);
 
             printf("Digite a nova idade do cliente: ");
-            scanf("%d", &clienteAtual.idade);
+            scanf("%d", &novaIdade);
 
             printf("Digite o novo endereço do cliente: ");
-            scanf(" %[^\n]", clienteAtual.endereco);
+            scanf(" %[^\n]", novoEndereco);
 
             printf("Digite a nova profissão do cliente: ");
-            scanf(" %[^\n]", clienteAtual.profissao);
+            scanf(" %[^\n]", novaProfissao);
 
-            // Mantém o CPF, pois não será alterado
+            //
 
-            printf("Digite o novo RG do cliente: ");
-            scanf("%s", clienteAtual.rg);
+            // Escreve os novos dados no arquivo temporário
+            fprintf(arqTemp, "%d;%s;%d;%s;%s\n", clienteID, novoNome, novaIdade, novoEndereco, novaProfissao);
+        } else {
+            fputs(linha, arqTemp);
         }
-
-        fprintf(arqTemp, "%s,%d,%s,%s,%s,%s\n", clienteAtual.nome, clienteAtual.idade,
-                clienteAtual.endereco, clienteAtual.profissao, clienteAtual.cpf, clienteAtual.rg);
     }
 
     fclose(arqClientes);
     fclose(arqTemp);
 
-    remove("arquivos/clientes.txt");
-    rename("arquivos/temp.txt", "arquivos/clientes.txt");
-
-    printf("\nCliente alterado com sucesso!\n");
+    if (!encontrado) {
+        printf("\nCliente com ID %d não encontrado.\n", clienteID);
+        remove("arquivos/temp.txt");
+    } else {
+        remove("arquivos/clientes.txt");
+        rename("arquivos/temp.txt", "arquivos/clientes.txt");
+        printf("\nCliente alterado com sucesso!\n");
+    }
 }
 
 void excluirCliente() {
-    struct Cliente *clientes = NULL; 
-    size_t numClientes = 0; 
+    int clienteID;
+    printf("\nDigite o ID do cliente a ser excluído: ");
+    scanf("%d", &clienteID);
 
     FILE *arqClientes = fopen("arquivos/clientes.txt", "r");
     if (arqClientes == NULL) {
@@ -816,49 +807,35 @@ void excluirCliente() {
         return;
     }
 
-    struct Cliente tempCliente;
-    while (fscanf(arqClientes, "%d;%49[^;];%d;%99[^;];%49[^;];%14[^;];%14[^\n]\n",
-                  &tempCliente.ID, tempCliente.nome, &tempCliente.idade,
-                  tempCliente.endereco, tempCliente.profissao, tempCliente.cpf, tempCliente.rg) != EOF) {
-        clientes = realloc(clientes, (numClientes + 1) * sizeof(struct Cliente));
-        clientes[numClientes++] = tempCliente; // Adiciona o cliente ao array
+    FILE *arqTemp = fopen("arquivos/temp.txt", "w");
+    if (arqTemp == NULL) {
+        printf("Erro ao criar o arquivo temporário.\n");
+        fclose(arqClientes);
+        return;
     }
-    fclose(arqClientes);
 
-    // Obter ID do cliente a ser excluído
-    int clienteID;
-    printf("\nDigite o ID do cliente a ser excluído: ");
-    scanf("%d", &clienteID);
-
-    // Encontrar e remover cliente
-    size_t i;
-    int encontrado = 0;
-    for (i = 0; i < numClientes; i++) {
-        if (clientes[i].ID == clienteID) {
-            encontrado = 1;
-            break;
+    char linha[200];
+    int idEncontrado = 0;
+    while (fgets(linha, sizeof(linha), arqClientes) != NULL) {
+        int id;
+        sscanf(linha, "%d;", &id);
+        if (id != clienteID) {
+            fputs(linha, arqTemp);
+        } else {
+            idEncontrado = 1;
         }
     }
 
-    if (encontrado) {
-        // Desloca todos os clientes após o índice 'i' uma posição para trás
-        memmove(&clientes[i], &clientes[i + 1], (numClientes - i - 1) * sizeof(struct Cliente));
-        numClientes--; 
-    } else {
-        printf("\nCliente com ID %d não encontrado.\n", clienteID);
-    }
-
-    arqClientes = fopen("arquivos/clientes.txt", "w");
-    for (i = 0; i < numClientes; i++) {
-        fprintf(arqClientes, "%d;%s;%d;%s;%s;%s;%s\n", clientes[i].ID, clientes[i].nome, clientes[i].idade,
-                clientes[i].endereco, clientes[i].profissao, clientes[i].cpf, clientes[i].rg);
-    }
     fclose(arqClientes);
+    fclose(arqTemp);
 
-    free(clientes);
-
-    if (encontrado) {
+    if (idEncontrado) {
+        remove("arquivos/clientes.txt");
+        rename("arquivos/temp.txt", "arquivos/clientes.txt");
         printf("\nCliente excluído com sucesso!\n");
+    } else {
+        remove("arquivos/temp.txt");
+        printf("\nCliente com ID %d não encontrado.\n", clienteID);
     }
 }
 
