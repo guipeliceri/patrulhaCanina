@@ -289,6 +289,7 @@ void gerenciarCliente(){
                 printf("5 - VOLTAR AO MENU PRINCIPAL\n");
                 printf("Escolha uma opção: ");
                 scanf("%d", &opcaoCliente);
+                limparBufferEntrada();
 
         switch(opcaoCliente) {
             case 1:
@@ -377,7 +378,7 @@ void incluirAnimal() {
     scanf("%29s", novoAnimal.especie);
     limparBufferEntrada();
 
-    printf("Idade: ");
+    printf("Idade(em meses): ");
     scanf("%19s", novoAnimal.idade);
     limparBufferEntrada();
 
@@ -901,38 +902,35 @@ void consultarCliente() {
 }
 
 int gerarProximoClienteID() {
-    FILE *arquivoID = fopen("ultimo_cliente_id.txt", "r+"); 
-
-    if (arquivoID == NULL) {
-        arquivoID = fopen("ultimo_cliente_id.txt", "w");
-        if (arquivoID == NULL) {
-            fprintf(stderr, "Erro ao criar o arquivo de ID do cliente.\n");
-            return -1;
-        }
-        fprintf(arquivoID, "%02d", 1); // Escreve 01 como primeiro ID
-        fclose(arquivoID);
-        return 1;
-    } else {
-        int ultimoID;
+    const char *arquivoNome = "ultimo_cliente_id.txt";
+    int ultimoID = 0;
+    
+    FILE *arquivoID = fopen(arquivoNome, "r");
+    if (arquivoID) {
         if (fscanf(arquivoID, "%d", &ultimoID) != 1) {
             fprintf(stderr, "Erro ao ler o último ID do cliente.\n");
             fclose(arquivoID);
             return -1;
         }
-        ultimoID++; 
-
-        // Se o ID exceder 99, reinicia para 01
-        if (ultimoID > 99) {
-            ultimoID = 1;
-        }
-
-        rewind(arquivoID);
-
-        fprintf(arquivoID, "%02d", ultimoID);
-        fclose(arquivoID); 
-
-        return ultimoID;
+        fclose(arquivoID);
     }
+
+    // Incrementa o ID e garante que ele está no intervalo de 100 a 999
+    ultimoID = (ultimoID < 100) ? 100 : ultimoID + 1;
+    if (ultimoID > 999) {
+        // Se o ID for maior que 999, reinicia em 100
+        ultimoID = 100;
+    }
+
+    arquivoID = fopen(arquivoNome, "w");
+    if (!arquivoID) {
+        fprintf(stderr, "Erro ao abrir o arquivo de ID do cliente para escrita.\n");
+        return -1;
+    }
+    fprintf(arquivoID, "%d", ultimoID);
+    fclose(arquivoID);
+
+    return ultimoID;
 }
 
 
