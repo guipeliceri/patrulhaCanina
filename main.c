@@ -12,6 +12,7 @@ int gerarProximoIDAnimal();//Para o Animal
 int gerarProximoIDAdocao();
 int gerarProximoClienteID();
 int existeAnimalComID(int id);
+int existeAdocaoComID(int id);
 void incluirCliente();
 void excluirCliente();
 void consultarCliente();
@@ -278,18 +279,17 @@ int cadastrarUsuario(FILE* arq, char valores[])
 
 void gerenciarCliente(){
 
-            int opcaoCliente;
-
-            do {
-                printf("\nGERENCIAR CLIENTES:\n");
-                printf("1 - INCLUIR CLIENTE\n");
-                printf("2 - CONSULTAR CLIENTE\n");
-                printf("3 - EXCLUIR CLIENTE\n");
-                printf("4 - ALTERAR CLIENTE\n");
-                printf("5 - VOLTAR AO MENU PRINCIPAL\n");
-                printf("Escolha uma opção: ");
-                scanf("%d", &opcaoCliente);
-                limparBufferEntrada();
+        int opcaoCliente;
+        do {
+            printf("\nGERENCIAR CLIENTES:\n");
+            printf("1 - INCLUIR CLIENTE\n");
+            printf("2 - CONSULTAR CLIENTE\n");
+            printf("3 - EXCLUIR CLIENTE\n");
+            printf("4 - ALTERAR CLIENTE\n");
+            printf("5 - VOLTAR AO MENU PRINCIPAL\n");
+            printf("Escolha uma opção: ");
+            scanf("%d", &opcaoCliente);
+            limparBufferEntrada();
 
         switch(opcaoCliente) {
             case 1:
@@ -517,15 +517,61 @@ int incluirAdocao(){
     return 1;
 };
 
+
+int excluirAdocao(int idExcluir) {
+    if (!existeAdocaoComID(idExcluir)) {
+        printf("ID não existe.\n");
+        return 1;
+    }
+    int idAdocao, idPessoa, idAnimal;
+
+    FILE *aqrAdocao = fopen("arquivos/adocao.txt", "r");
+    if (aqrAdocao == NULL) {
+        printf("\nErro ao abrir o arquivo.\n");
+        return 1;
+    }
+
+    FILE *arqTemp = fopen("arquivos/temp.txt", "w");
+    if (arqTemp == NULL) {
+        printf("\nErro ao abrir o arquivo temporário!\n");
+        fclose(aqrAdocao);
+        return 1;
+    }
+
+    char linha[200];
+    int encontrado = 0;
+    while (fgets(linha, sizeof(linha), aqrAdocao) != NULL) {
+        sscanf(linha, "ID da adoção é: %d ||ID da adotante é:%d || ID do Animal é: %d", &idAdocao, &idPessoa, &idAnimal);
+        if (idAdocao != idExcluir) {
+            fputs(linha, arqTemp);
+        } else {
+            encontrado = 1; // Marca como encontrado
+        }
+    }
+
+    fclose(aqrAdocao);
+    fclose(arqTemp);
+
+    if (!encontrado) {
+        remove("arquivos/temp.txt");
+    } else {
+        // Substitui o arquivo original pelo temporário
+        remove("arquivos/adocao.txt");
+        rename("arquivos/temp.txt", "arquivos/adocao.txt");
+    }
+
+    return encontrado;
+}
+
+
 void gerenciarAdocao(){
     int opcao;
     do
     {
         printf("(1) - INCLUIR ADOÇÃO\n");
-        printf("(2) - ALTERAR ADOÇÃO\n");
-        printf("(3) - EXCLUIR ADOÇÃO\n");
-        printf("(4) - CONSULTAR ADOÇÃO\n");
-        printf("(5) - VOLTAR AO MENU PRINCIPAL\n");
+        printf("(2) - EXCLUIR ADOÇÃO\n");
+        printf("(3) - CONSULTAR ADOÇÃO\n");
+        printf("(4) - VOLTAR AO MENU PRINCIPAL\n");
 
         scanf("%d", &opcao);
 
@@ -535,21 +581,29 @@ void gerenciarAdocao(){
                 incluirAdocao();
                 break;
             case 2:
-                //alterarAdocao();
+            {
+                int idExcluir;
+                printf("Digite o ID da Adoção a ser excluído: ");
+                scanf("%d", &idExcluir);
+                limparBufferEntrada();
+                int retorno =  excluirAdocao(idExcluir);
+                if (!retorno) {
+                    printf("ID não encontrado nos registros.\n");
+                } else {
+                    printf("Adocao excluído com sucesso.\n");
+                }
                 break;
+            }
             case 3:
-                //excluirAdocao();
-                break;
-            case 4:
                 consultarAdocao();
                 break;
-            case 5:
+            case 4:
                 return;
             default:
                 printf("Opção inválida!\n");
                 break;
         }
-    } while(opcao != 5);
+    } while(opcao != 4);
 };
 
 int gerarProximoIDAnimal() {
@@ -650,6 +704,28 @@ int existeAnimalComID(int id) {
     }
 
     fclose(arqAnimais);
+    return 0; // Retorna 0 se não encontrar um animal com o mesmo ID
+}
+
+int existeAdocaoComID(int id) {
+    FILE *arqAdocao = fopen("arquivos/adocao.txt", "r");
+    if (arqAdocao == NULL) {
+        printf("\nErro ao abrir o arquivo de animais.\n");
+        return -1; 
+    }
+
+    char linha[200]; // Ajuste o tamanho conforme necessário
+    int idAdocao, idPessoa, idAnimal;
+    
+    while (fgets(linha, sizeof(linha), arqAdocao) != NULL) {
+        sscanf(linha, "ID da adoção é: %d ||ID da adotante é:%d || ID do Animal é: %d", &idAdocao, &idPessoa, &idAnimal);
+        if (idAdocao == id) {
+            fclose(arqAdocao);
+            return 1; // Retorna 1 se encontrar um animal com o mesmo ID
+        }
+    }
+
+    fclose(arqAdocao);
     return 0; // Retorna 0 se não encontrar um animal com o mesmo ID
 }
 
