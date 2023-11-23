@@ -513,6 +513,7 @@ int incluirAdocao(){
     fflush(arqAdocao);
     fclose(arqAdocao);
 
+    excluirAnimal(idAnimal);
     printf("\nADOÇÃO REGISTRADA COM SUCESSO!\n\n");
     return 1;
 };
@@ -566,6 +567,7 @@ int excluirAdocao(int idExcluir) {
 
 void gerenciarAdocao(){
     int opcao;
+    int opcaoAdicionaAnimal;
     do
     {
         printf("(1) - INCLUIR ADOÇÃO\n");
@@ -590,7 +592,16 @@ void gerenciarAdocao(){
                 if (!retorno) {
                     printf("ID não encontrado nos registros.\n");
                 } else {
-                    printf("Adocao excluído com sucesso.\n");
+                    printf("Adocao excluída com sucesso.\n");
+                    printf("você quer adicionar o animal de volta?\n");
+                    printf("(1) - SIM\n");
+                    printf("(2) - NÃO\n");
+                    scanf("%d", &opcaoAdicionaAnimal);
+                    if (opcaoAdicionaAnimal == 1) {
+                        incluirAnimal();
+                    } else {
+                        return;
+                    }
                 }
                 break;
             }
