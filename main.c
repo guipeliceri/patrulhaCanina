@@ -2,32 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-
-//FUNÇÕES
-void solicitarDadosUsuario(char* linha);
-int logarUsuario(FILE* arq, char valores[]);
-int cadastrarUsuario(FILE* arq, char valores[]);
-void gerenciarCliente();;//Gerencia as operações relacionadas aos clientes, como inclusão, consulta, exclusão e alteração de clientes
-int gerarProximoIDAnimal();;//Gera um ID pro Animal
-int gerarProximoIDAdocao();//Gera um ID para a operação "adoção"
-int gerarProximoClienteID();//Gera um ID para o Cliente
-int existeAnimalComID(int id);//Verifica se o Animal possui ID
-int existeAdocaoComID(int id);//Verifica se já existe uma adoção registrada com o mesmo ID
-void incluirCliente();//Permite adcionar um novo cliente ao sistema
-void excluirCliente();//Remove um cliente do sistema com base no seu ID
-void consultarCliente();//Permite ao usuário consultar os detalhes de um cliente específico com base no seu ID
-void alterarCliente();//Permite modificar os detalhes de um cliente existente
-void incluirAnimal();//Permite adcionar um novo animal ao sistema
-void gerenciarAnimais();//Fornece um menu para gerenciar operações relacionadas a animais, como inclusão e exclusão
-void alterarAnimal();//Permite alterar informações de um animal já registrado
-int excluirAnimal(int idExcluir);;//Remove um animal do sistema com base em seu ID
-void gerenciarAdocao();//Fornece funcionalidades para gerenciar adoções
-void visualizarAnimaisDisponiveis();//Mostra uma lista de animais disponíveis para adoção
-void limparBufferEntrada();//Limpa o buffer de entrada para evitar leituras indesejadas durante a entrada de dados
-void atualizarStatusAdocao(int id, const char* novoStatus);//Atualiza o status de uma adoção no sistema
-char verificarStatusAdocao(int id);//Verifica o status atual de uma adoção específica
-void atualizaStatusAnimal();//Atualiza o status de um animal no sistema
-void consultarAdocao();//Permite ao usuário consultar detalhes de uma adoção específica
+#include "header.h"
 
 #define TAMUSUARIO 5
 #define TAMSENHA 5
@@ -60,15 +35,7 @@ int main(){
 
     //VARIÁVEIS
     FILE *arqUsuario, *arqPessoa, *arqDoacao, *arqDepoimento;
-    char usuario[5];
     int ehLogado = 0;
-
-    struct Pessoa
-    {
-        char nome[50];
-    };
-    
-    
 
     printf("\nBem-vindo(a) ao Patrulha Canina!!!\n");
     
@@ -76,7 +43,7 @@ int main(){
     // REALIZA O LOGIN
     do
     {
-        printf("\nMENU:\n");
+        printf("\n\nMENU:\n");
         printf("1 - CADASTRAR USUÁRIO\n");
         printf("2 - LOGAR NO SISTEMA\n");
         printf("3 - SAIR\n");
@@ -107,15 +74,16 @@ int main(){
                         printf("\nUsuário não cadastrado. Tente novamente!\n");
                     else if(retorno == 1)
                     {
+                        printf("\nUsuário ");
                         for (int i=0; i < strlen(dados); i++)
                         {   
                             if (dados[i] == ',')
-                                break;
+                                break;     
 
-                            usuario[i] = dados[i];
+                            printf("%c", dados[i]);    
                         }
-
-                        printf("\nUsuário %s logado!\n", usuario);
+                        
+                        printf(" logado!\n");
                         opcao = 3;  
                         ehLogado = 1;
                     }
@@ -168,7 +136,7 @@ int main(){
 
             case 4:
                 {
-                    arqUsuario = fopen("arquivos/usuarios.txt", "a+"); //abre o arquivo para edição
+                    arqUsuario = fopen("arquivos/usuarios.txt", "a+"); //abre o arquivo para edição a partir do final
                     if (arqUsuario == NULL)
                     {
                         printf("Erro interno. Tente novamente!\n");
@@ -238,8 +206,6 @@ void solicitarDadosUsuario(char* linha)
     }
 
     strcat(linha, entrada);
-    printf("LINHA: %s", linha);
-    //return linha;
 }
 
 
@@ -286,7 +252,8 @@ void gerenciarCliente(){
             printf("2 - CONSULTAR CLIENTE\n");
             printf("3 - EXCLUIR CLIENTE\n");
             printf("4 - ALTERAR CLIENTE\n");
-            printf("5 - VOLTAR AO MENU PRINCIPAL\n");
+            printf("5 - CONSULTAR CLIENTES\n");
+            printf("6 - VOLTAR AO MENU PRINCIPAL\n");
             printf("Escolha uma opção: ");
             scanf("%d", &opcaoCliente);
             limparBufferEntrada();
@@ -295,21 +262,53 @@ void gerenciarCliente(){
             case 1:
                 incluirCliente();
                 break;
+
             case 2:
                 consultarCliente();
                 break;
+
             case 3:
                 excluirCliente();
                 break;
+
             case 4:
                 alterarCliente();
+                break;
+
             case 5:
+                {
+                    FILE *arqClientes = fopen("arquivos/clientes.txt", "r");
+                    char frase[100];
+
+                    if(arqClientes == NULL) {
+                        printf("Não foi possível visualizar os clientes disponíveis.\n");
+                    }
+                        
+                    if(fgets(frase, sizeof(frase), arqClientes) != NULL)
+                    {
+
+                        rewind(arqClientes);
+                        printf("\nAqui está a lista de clientes disponíveis:\n");
+
+                        while(fgets(frase, sizeof(frase), arqClientes) != NULL) {
+                            printf("- %s", frase);
+                        }
+                        printf("\n");
+                        fclose(arqClientes);
+                    }
+                    else
+                        printf("\n\nNão existe clientes disponíveis. Por favor, cadastre ao menos um.\n");
+                }
+                break;
+
+            case 6:
                 return; // Retorna ao menu principal
+        
             default:
                 printf("Opção inválida. Tente novamente!\n");
                 break;
         }
-    } while(opcaoCliente != 5);
+    } while(opcaoCliente != 6);
 }
 
 void gerenciarAnimais() {
@@ -416,21 +415,20 @@ void limparBufferEntrada() {
 int excluirAnimal(int idExcluir) {
     
     if (!existeAnimalComID(idExcluir)) { //Primeiro verifica se o ID do animal a ser excluido existe
-        printf("ID não existe.\n");
-        return 1;
+        return 0;
     }
 
     FILE *arqAnimais = fopen("arquivos/animais.txt", "r");
     if (arqAnimais == NULL) {
         printf("\nErro ao abrir o arquivo de animais.\n");
-        return 1;
+        return 0;
     }
 
     FILE *arqTemp = fopen("arquivos/temp.txt", "w");
     if (arqTemp == NULL) {
         printf("\nErro ao abrir o arquivo temporário!\n");
         fclose(arqAnimais);
-        return 1;
+        return 0;
     }
 
     char linha[200]; //cria um array de caracteres para armazenar cada linha lida do arquivo
@@ -570,10 +568,10 @@ void gerenciarAdocao(){
     int opcaoAdicionaAnimal;
     do
     {
-        printf("(1) - INCLUIR ADOÇÃO\n");
-        printf("(2) - EXCLUIR ADOÇÃO\n");
-        printf("(3) - CONSULTAR ADOÇÃO\n");
-        printf("(4) - VOLTAR AO MENU PRINCIPAL\n");
+        printf("\n1 - INCLUIR ADOÇÃO\n");
+        printf("2 - EXCLUIR ADOÇÃO\n");
+        printf("3 - CONSULTAR ADOÇÃO\n");
+        printf("4 - VOLTAR AO MENU PRINCIPAL\n");
 
         scanf("%d", &opcao);
 
@@ -767,21 +765,24 @@ void visualizarAnimaisDisponiveis() {
         FILE *arqAnimaisDisponiveis = fopen("arquivos/animais.txt", "r");
         char frase[100];
 
-        if(arqAnimaisDisponiveis != NULL) {
+        if(arqAnimaisDisponiveis == NULL) {
+            printf("Não foi possível visualizar os animais disponíveis.\n");
+        }
             
+        if(fgets(frase, sizeof(frase), arqAnimaisDisponiveis) != NULL)
+        {
+
+            rewind(arqAnimaisDisponiveis);
             printf("\nAqui está a lista de animais disponíveis para adoção:\n");
 
             while(fgets(frase, sizeof(frase), arqAnimaisDisponiveis) != NULL) {
-                printf("-%s", frase);
+                printf("- %s", frase);
             }
             printf("\n");
             fclose(arqAnimaisDisponiveis);
         }
-
-        else{
-            printf("Não foi possível visualizar os animais disponíveis.\n");
-        }
-
+        else
+            printf("\n\nNão existe animais disponíveis. Por favor, cadastre ao menos um.\n");
 }
 
 void incluirCliente() {
@@ -960,7 +961,7 @@ void consultarCliente() {
 }
 
 int gerarProximoClienteID() {
-    const char *arquivoNome = "ultimo_cliente_id.txt";  //nome do arquivo que armazenará o último ID do cliente usado
+    const char *arquivoNome = "arquivos/ultimo_cliente_id.txt";  //nome do arquivo que armazenará o último ID do cliente usado
     int ultimoID = 0;
     
     FILE *arquivoID = fopen(arquivoNome, "r");
@@ -997,8 +998,8 @@ void consultarAdocao() {
     int opcaoDeID;
 
     printf("\nPara consultar uma adoção, escolhe entre as duas opções abaixo:\n");
-    printf("(1) - PESQUISA POR ID DO ANIMAL\n");
-    printf("(2) - PESQUISA POR ID DO CLIENTE\n");
+    printf("1 - PESQUISA POR ID DO ANIMAL\n");
+    printf("2 - PESQUISA POR ID DO CLIENTE\n");
     scanf("%d", &opcaoDeID);        //A pesquisa será por id do animal ou do cliente?
 
     switch (opcaoDeID)              //Case para a escolha
@@ -1011,8 +1012,7 @@ void consultarAdocao() {
         char idAnimalStr[5];
         char* TrueFalse;
 
-        printf("Digite o ID do animal a consultar\n");
-        printf("\n");
+        printf("Digite o ID do animal a consultar: ");
         scanf("%d", &idAnimal);       //ID do animal
 
         sprintf(idAnimalStr, "%d", idAnimal);       //Transforma o ID (int) em String para usar no strstr()
@@ -1076,7 +1076,7 @@ void consultarAdocao() {
 
              if(arqIdCliente != NULL) {
                 
-                while(fgets(frase2, sizeof(frase2), arqIdCliente)) {
+                while(fgets(frase2, sizeof(frase2), arqIdCliente) != NULL) {
 
                     if(strstr(frase2, idClienteStr) != NULL) {
                         printf("%s", frase2+25);

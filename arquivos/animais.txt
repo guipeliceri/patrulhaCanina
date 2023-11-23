@@ -1,4 +1,1 @@
-1030;Fabio; Humano; 18 aninhos:D; M; Melhor de TADS
-1031;Scooby; Basset; 6 anos; M; Melhor basset do universo
-1034;Carlos; bobao;27 anos; F; esquisito
-1038;papagaio; Ave; 1; M; Muito lindo, pode deixar hipnotizado
+1000;papagaio; ave; 23; M; auhsauhs
