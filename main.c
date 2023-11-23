@@ -7,27 +7,27 @@
 void solicitarDadosUsuario(char* linha);
 int logarUsuario(FILE* arq, char valores[]);
 int cadastrarUsuario(FILE* arq, char valores[]);
-void gerenciarCliente();
-int gerarProximoIDAnimal();//Para o Animal
-int gerarProximoIDAdocao();
-int gerarProximoClienteID();
-int existeAnimalComID(int id);
-int existeAdocaoComID(int id);
-void incluirCliente();
-void excluirCliente();
-void consultarCliente();
-void alterarCliente();
-void incluirAnimal();
-void gerenciarAnimais();
-void alterarAnimal();
-int excluirAnimal(int idExcluir);
-void gerenciarAdocao();
-void visualizarAnimaisDisponiveis();
-void limparBufferEntrada();
-void atualizarStatusAdocao(int id, const char* novoStatus);
-char verificarStatusAdocao(int id);
-void atualizaStatusAnimal();
-void consultarAdocao();
+void gerenciarCliente();;//Gerencia as operações relacionadas aos clientes, como inclusão, consulta, exclusão e alteração de clientes
+int gerarProximoIDAnimal();;//Gera um ID pro Animal
+int gerarProximoIDAdocao();//Gera um ID para a operação "adoção"
+int gerarProximoClienteID();//Gera um ID para o Cliente
+int existeAnimalComID(int id);//Verifica se o Animal possui ID
+int existeAdocaoComID(int id);//Verifica se já existe uma adoção registrada com o mesmo ID
+void incluirCliente();//Permite adcionar um novo cliente ao sistema
+void excluirCliente();//Remove um cliente do sistema com base no seu ID
+void consultarCliente();//Permite ao usuário consultar os detalhes de um cliente específico com base no seu ID
+void alterarCliente();//Permite modificar os detalhes de um cliente existente
+void incluirAnimal();//Permite adcionar um novo animal ao sistema
+void gerenciarAnimais();//Fornece um menu para gerenciar operações relacionadas a animais, como inclusão e exclusão
+void alterarAnimal();//Permite alterar informações de um animal já registrado
+int excluirAnimal(int idExcluir);;//Remove um animal do sistema com base em seu ID
+void gerenciarAdocao();//Fornece funcionalidades para gerenciar adoções
+void visualizarAnimaisDisponiveis();//Mostra uma lista de animais disponíveis para adoção
+void limparBufferEntrada();//Limpa o buffer de entrada para evitar leituras indesejadas durante a entrada de dados
+void atualizarStatusAdocao(int id, const char* novoStatus);//Atualiza o status de uma adoção no sistema
+char verificarStatusAdocao(int id);//Verifica o status atual de uma adoção específica
+void atualizaStatusAnimal();//Atualiza o status de um animal no sistema
+void consultarAdocao();//Permite ao usuário consultar detalhes de uma adoção específica
 
 #define TAMUSUARIO 5
 #define TAMSENHA 5
@@ -45,9 +45,9 @@ struct Animal {
 
 // Dados clientes
 struct Cliente {
-    int ID;
+    int ID;//ID único para cada Cliente
     char nome[50];
-    int idade;
+    int idade;//Consideraremos apenas em "anos", por exemplo: 24. Siginifica que o cliente tem 24 anos
     char endereco[100];
     char profissao[50];
     char cpf[15];
@@ -415,7 +415,7 @@ void limparBufferEntrada() {
 
 int excluirAnimal(int idExcluir) {
     
-    if (!existeAnimalComID(idExcluir)) {
+    if (!existeAnimalComID(idExcluir)) { //Primeiro verifica se o ID do animal a ser excluido existe
         printf("ID não existe.\n");
         return 1;
     }
@@ -433,11 +433,11 @@ int excluirAnimal(int idExcluir) {
         return 1;
     }
 
-    char linha[200];
+    char linha[200]; //cria um array de caracteres para armazenar cada linha lida do arquivo
     int id, encontrado = 0;
     while (fgets(linha, sizeof(linha), arqAnimais) != NULL) {
-        sscanf(linha, "%d,", &id);
-        if (id != idExcluir) {
+        sscanf(linha, "%d,", &id); //Se o ID corresponder, a variável encontrado é definida como 1
+        if (id != idExcluir) { // //para indicar que o registro foi encontrado e não é copiado para o arquivo temporário
             fputs(linha, arqTemp);
         } else {
             encontrado = 1; // Marca como encontrado
@@ -626,8 +626,8 @@ int gerarProximoIDAnimal() {
 
     int idAtual;
     if (fscanf(arqID, "%d", &idAtual) != 1) {
-        fclose(arqID);
-        printf("Erro ao ler o ID atual.\n");
+        fclose(arqID); //Se não conseguir ler um valor válido (um inteiro), a função fecha o
+        printf("Erro ao ler o ID atual.\n"); //arquivo, imprime uma mensagem de erro e retorna -1
         return -1;
     }
 
@@ -643,8 +643,8 @@ int gerarProximoIDAnimal() {
         return -1;
     }
 
-    rewind(arqID); 
-    fprintf(arqID, "%04d", idAtual); // Grava o novo ID com formato de 4 dígitos
+    rewind(arqID);  //retorna ao inicio do arquivo
+    fprintf(arqID, "%04d", idAtual); // Garantir que tenha 4 dígitos
     fclose(arqID);
 
     return idAtual;
@@ -868,8 +868,8 @@ void alterarCliente() {
 
     if (!encontrado) {
         printf("\nCliente com ID %d não encontrado.\n", clienteID);
-        remove("arquivos/temp.txt");
-    } else {
+        remove("arquivos/temp.txt");   //Se o cliente com o ID especificado não for encontrado
+    } else {  //a função imprime uma mensagem de erro e exclui o arquivo temporário.
         remove("arquivos/clientes.txt");
         rename("arquivos/temp.txt", "arquivos/clientes.txt");
         printf("\nCliente alterado com sucesso!\n");
@@ -960,7 +960,7 @@ void consultarCliente() {
 }
 
 int gerarProximoClienteID() {
-    const char *arquivoNome = "ultimo_cliente_id.txt";
+    const char *arquivoNome = "ultimo_cliente_id.txt";  //nome do arquivo que armazenará o último ID do cliente usado
     int ultimoID = 0;
     
     FILE *arquivoID = fopen(arquivoNome, "r");
