@@ -764,24 +764,26 @@ char verificarStatusAdocao(int id) {
 }
 
 void visualizarAnimaisDisponiveis() {
-        FILE *arqAnimaisDisponiveis = fopen("arquivos/animais.txt", "r");
-        char frase[100];
+    FILE *arqAnimaisDisponiveis = fopen("arquivos/animais.txt", "r");
+    char linha[200];
+    int encontrouAnimais = 0; // Flag para verificar se encontrou algum animal
 
-        if(arqAnimaisDisponiveis != NULL) {
-            
-            printf("\nAqui está a lista de animais disponíveis para adoção:\n");
+    if (arqAnimaisDisponiveis != NULL) {
+        printf("\nAqui está a lista de animais disponíveis para adoção:\n");
 
-            while(fgets(frase, sizeof(frase), arqAnimaisDisponiveis) != NULL) {
-                printf("-%s", frase);
-            }
-            printf("\n");
-            fclose(arqAnimaisDisponiveis);
+        while (fgets(linha, sizeof(linha), arqAnimaisDisponiveis) != NULL) {
+            printf("-%s", linha);
+            encontrouAnimais = 1; // Marca que encontrou pelo menos um animal
         }
 
-        else{
-            printf("Não foi possível visualizar os animais disponíveis.\n");
-        }
+        fclose(arqAnimaisDisponiveis);
 
+        if (!encontrouAnimais) {
+            printf("Atualmente, não há animais disponíveis para adoção.\n");
+        }
+    } else {
+        printf("Não foi possível visualizar os animais disponíveis.\n");
+    }
 }
 
 void incluirCliente() {
