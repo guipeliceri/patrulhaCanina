@@ -762,8 +762,9 @@ char verificarStatusAdocao(int id) {
 }
 
 void visualizarAnimaisDisponiveis() {
-        FILE *arqAnimaisDisponiveis = fopen("arquivos/animais.txt", "r");
-        char frase[100];
+    FILE *arqAnimaisDisponiveis = fopen("arquivos/animais.txt", "r");
+    char linha[200];
+    int encontrouAnimais = 0; // Flag para verificar se encontrou algum animal
 
         if(arqAnimaisDisponiveis == NULL) {
             printf("Não foi possível visualizar os animais disponíveis.\n");
