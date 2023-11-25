@@ -1,4 +1,5 @@
 //FUNÇÕES
+
 void solicitarDadosUsuario(char* linha);
 int logarUsuario(FILE* arq, char valores[]);
 int cadastrarUsuario(FILE* arq, char valores[]);
@@ -23,3 +24,5 @@ void atualizarStatusAdocao(int id, const char* novoStatus);//Atualiza o status d
 char verificarStatusAdocao(int id);//Verifica o status atual de uma adoção específica
 void atualizaStatusAnimal();//Atualiza o status de um animal no sistema
 void consultarAdocao();//Permite ao usuário consultar detalhes de uma adoção específica
+void login(int opcao, int ehLogado);//
+void menu(int opcao);//
