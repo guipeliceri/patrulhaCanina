@@ -1,1 +1,2 @@
 1000;papagaio; ave; 23; M; auhsauhs
+1004;Prib; Canguru; 32; M; mt foda

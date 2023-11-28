@@ -1131,7 +1131,7 @@ void consultarAdocao()
     int opcaoDeID;
     printf("\nPara consultar uma adoção, escolhe entre as duas opções abaixo:\n");
     printf("1 - PESQUISA POR ID DO ANIMAL\n");
-    printf("2 - PESQUISA POR ID DO CLIENTE\n");
+    printf("2 - PESQUISA POR ID DO ADOTANTE\n");
     scanf("%d", &opcaoDeID); // A pesquisa será por id do animal ou do cliente?
 
     switch (opcaoDeID) // Case para a escolha
@@ -1139,99 +1139,72 @@ void consultarAdocao()
     case 1:
     {
 
-        int idAnimal;
-        char frase[50];
-        int linha = 1;
-        char idAnimalStr[5];
-        char *TrueFalse;
+        int idAnimalConsultar;
+        char frase[200];
+        int idAdocaoExistente, idClienteExistente, idAnimalExistente;
+        int encontrado = 0;
+
+        
+        FILE *arqIDclienteAdocao;
+
+        arqIDclienteAdocao = fopen("arquivos/adocao.txt", "r"); // Abre arquivo de adoção
+
+         if (arqIDclienteAdocao == NULL)
+         {
+        printf("\nErro ao abrir o arquivo.\n");
+        break;
+         }
 
         printf("Digite o ID do animal a consultar: ");
-        scanf("%d", &idAnimal); // ID do animal
+        scanf("%d", &idAnimalConsultar); // ID do animal
 
-        sprintf(idAnimalStr, "%d", idAnimal); // Transforma o ID (int) em String para usar no strstr()
+        while(fgets(frase, sizeof(frase), arqIDclienteAdocao) != NULL){
+            sscanf(frase, "ID da adoção é: %d ||ID da adotante é:%d || ID do Animal é: %d", &idAdocaoExistente, &idClienteExistente, &idAnimalExistente);
+        
 
-        FILE *arqIdAnimal;
-
-        arqIdAnimal = fopen("arquivos/adocao.txt", "r"); // Abre arquivo de adoção
-
-        if (arqIdAnimal != NULL)
-        {
-
-            while (fgets(frase, sizeof(frase), arqIdAnimal) != NULL)
-            {
-                int comprimento = (strlen(frase) / 2);
-                TrueFalse = strstr(frase + comprimento, idAnimalStr); // Procura o ID do animal apenas na metade pra frente de cada frase do arquivo
-                                                                      // Pra que assim não de confusão com o ID do cliente
-                if (TrueFalse != NULL)
-                { // Se achou, para
-
-                    for (int i = 0; i < 22; i++)
-                    {
-                        printf("%c", frase[i]);
-                    }
-                    printf("\n");
-                    break;
-                }
-                else // Se não continua a aumentar as linhas
-                    linha++;
-            }
-
-            if (TrueFalse == NULL)
-            {
-                printf("Não foi possível achar o ID do animal digitado na aba de 'Adotado', ou o animal não existe, ou ele ainda não foi adotado\n"); // Se não achou mesmo o arquivo tendo acabado, acaba
-                break;
-            }
-
-            fclose(arqIdAnimal);
+        if(idAnimalConsultar == idAnimalExistente){
+            printf("ID da adoção é: %d || ID da adotante é: %d\n", idAdocaoExistente, idClienteExistente);
+            encontrado = 1;
+        }
         }
 
-        else
-        {
-            printf("Não foi possível consultar o ID do animal\n");
-            printf("\n");
-            break;
+        if(encontrado == 0){
+            printf("Animal não encontrado!\n");
         }
+
         break;
     }
 
     case 2:
     {
 
-        char idClienteStr[5];
-        char frase2[50];
-        int idCliente;
-        int linha2 = 0;
-        printf("Digite o ID do cliente a consultar");
-        printf("\n");
-        scanf("%d", &idCliente);
-        printf("\nAqui estão os IDs dos animais que esse cliente adotou:\n");
-
-        sprintf(idClienteStr, "%d", idCliente);
-
         FILE *arqIdCliente;
-
         arqIdCliente = fopen("arquivos/adocao.txt", "r");
 
-        if (arqIdCliente != NULL)
-        {
+        char idClienteStr[5];
+        char frase2[200];
+        int idClienteConsultar;
+        int idClienteExistente, idAnimalExistente, idAdocaoExistente;
+        int encontrado = 0;
+        //int linha2 = 0;
 
-            while (fgets(frase2, sizeof(frase2), arqIdCliente) != NULL)
-            {
-
-                if (strstr(frase2, idClienteStr) != NULL)
-                {
-                    printf("%s", frase2 + 25);
-                }
-                linha2 += 1;
-            }
-
-            fclose(arqIdCliente);
-        }
-        else
-            printf("Não foi possível abrir o arquivo\n");
-
+        printf("Digite o ID do cliente a consultar");
         printf("\n");
-        break;
+        scanf("%d", &idClienteConsultar);
+
+        while(fgets(frase2, sizeof(frase2), arqIdCliente) != NULL){
+            sscanf(frase2, "ID da adoção é: %d ||ID da adotante é:%d || ID do Animal é: %d", &idAdocaoExistente, &idClienteExistente, &idAnimalExistente);
+            if(idClienteConsultar == idClienteExistente){
+                printf("ID da adoção é: %d || ID do Animal é: %d\n", idAdocaoExistente, idAnimalExistente);
+                encontrado = 1;                
+            }
+        }
+
+        if(encontrado == 0) {
+            printf("Adotante não encontrado!\n");
+        }
+
+               break;
     }
     }
 }
